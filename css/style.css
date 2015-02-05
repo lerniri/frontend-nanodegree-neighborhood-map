@@ -1,0 +1,227 @@
+@import 'reset.css';
+@import 'font/fontello.css';
+
+html, body {
+	height:100%;
+	font-family: Verdana, sans-serif;
+	font-size:12px;
+}
+
+h1 {
+	font-size: 2em;
+}
+
+h2 {
+	font-size:1.8em;
+
+}
+
+h3 {
+	font-size: 1.6em;
+}
+
+h4 {
+	font-size: 1.4em;
+	margin-bottom:10px;
+}
+
+h5 {
+	font-size: 1.2em;
+	margin-bottom: 5px;
+}
+
+h6 {
+	font-size: 1.1em;
+}
+
+.icon-eye,
+.icon-instagram {
+	font-size: 3em;
+	color: rgb(255, 60, 23);
+}
+
+.wrapper {
+	width:100%;
+	height:100%;
+}
+
+#map {
+	position:absolute;
+	height:100%;
+	width:100%;
+}
+
+
+#search-bar {
+  max-width: 350px;
+  display: flex;
+  -webkit-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+  -moz-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+  box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+}
+
+
+#search-input {
+	width:90%;
+	height:35px;
+	padding:2px;
+}
+
+
+#search-input:focus {
+	outline:none !important;
+}
+
+#search-btn {
+	width:40px;
+	height:35px;
+}
+
+#search-btn:hover {
+	background-color: darkgrey;
+
+}
+
+#search-btn:active {
+	outline:none !important;
+	border:0 !important;
+}
+
+
+#search-input,
+#search-btn {
+	border:0;
+}
+
+
+#places-list-topbar {
+  /*height: 80px;*/
+  background-color:  transparent;
+  text-align: right;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+
+#places-list-topbar h5 {
+	/*background-color: rgba(250, 99, 72, 0.88);*/
+	padding:10px;
+	border-radius: 8px;
+	font-weight: bold;
+}
+
+
+#neighborhood-input {
+	margin-bottom:10px;
+	width:100%;
+	height:25px;
+}
+
+
+#places-list-wrapper {
+	position: fixed;
+	right:5px;
+	margin-top:5px;
+}
+
+
+#places-list {
+	overflow-x: hidden;
+  	overflow-y: scroll;
+  	height:75vh;
+}
+
+.place-categories-list {
+	margin-top: 5px;
+}
+
+/*
+	Places list item styles
+*/
+.place-item {
+  background-color: rgba(255, 255, 255, 0.89);
+  width: 300px;
+  padding: 20px;
+  border-bottom: 1px solid rgb(234, 228, 228);
+  cursor: pointer;
+
+}
+
+
+.desc {
+	margin-bottom: 15px;
+}
+
+.address {
+	font-style: italic;
+  	margin-top: 13px;
+  	margin-bottom: 20px;
+}
+
+.place-category {
+	display: inline;
+	padding:0;
+	margin:0;
+}
+
+.place-item-logo {
+	width:30px;
+	height:30px;
+	float:right;
+}
+
+
+
+
+#photo-wrapper {
+	position:absolute;
+	bottom: 0;
+	width:100%;
+}
+
+#photo-inner-wrapper {
+	width:70%;
+	margin:auto;
+}
+
+.menu {
+	width:50%;
+	margin:auto;
+	height: 40px;
+    padding: 10px;
+}
+
+.menu ul {
+	display:flex;
+  	justify-content: space-around;
+}
+
+.menu li {
+	cursor:pointer;
+}
+
+#photo-carousel {
+	background-color: white;
+}
+
+
+/*
+	Markers info styling
+*/
+
+#infowindow-div {
+	height:50px;
+	padding:2px;
+}
+
+#infowindow-div h6 {
+	margin-bottom: 20px;
+}
+
+/* UTILS */
+
+.noscroll {
+	overflow: hidden;
+	white-space: nowrap;
+}
+

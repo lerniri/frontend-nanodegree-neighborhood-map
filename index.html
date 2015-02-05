@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Neighborhood Map</title>
+
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+	<!-- Google API Library -->
+    <!-- script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script -->
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+
+  </head>
+  <body>
+
+	<!-- Page main container -->
+	<div class="wrapper">
+		<div id="map"></div>
+
+		<!-- Search bar (top left) -->
+	<!-- 	<div id="search-bar">
+			<input id="search-input" type="search" placeholder="Search Place">
+			<button id="search-btn"></button>
+		</div> -->
+			<!-- Neighborhood bar (bottom left) -->
+
+		<!-- Places/Markers list (right side) -->
+
+		<div id="places-list-wrapper">
+			<div id="places-list-topbar">
+					<h5>Neighborhood</h5>
+					<input id="neighborhood-input" data-bind="value: myNeighborhood, change: requestNeighborhood" type="search" placeholder="Type Neighborhood">
+					<h5>Interesting Places</h5>
+					<div id="search-bar">
+  						<!-- <span class="input-group-addon" id="basic-addon1">@</span> -->
+
+						<input id="search-input" type="search" placeholder="Search Place">
+						<button id="search-btn"></button>
+					</div>
+
+
+
+			</div>
+			<ul id="places-list" data-bind="foreach: nearbyPlaces">
+				<li class="place-item" data-bind="click: $parent.panMapToClickedPlace">
+					<div class="place-item-title">
+						<img class="place-item-logo" data-bind="attr: {src: icon}">
+						<h5 data-bind="text: name"></h5>
+
+					</div>
+
+					<!-- <p class="desc"> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur eu tortor ac orci cursus dapibus ac vel velit.</p> -->
+					<p class="address" data-bind="text: address"></p>
+					<ul class="place-categories-list" data-bind="foreach: types" style="display: none">
+						<li class="place-category" data-bind="text: $data"></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- Street view and pics bar (bottom) -->
+		<div id="photo-wrapper">
+			<div id="photo-inner-wrapper">
+				<div class="menu">
+					<ul>
+						<li><i class="icon-eye"></i></li>
+						<li><i class="icon-instagram"></i></li>
+					</ul>
+				</div>
+				<div class="photo-carousel"></div>
+			</div>
+
+
+		</div>
+
+	</div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+	<!-- Knockout CDN -->
+	<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.0.0.js"></script>
+	<!-- Application code -->
+	<script type="text/javascript" src="js/app.js"></script>
+  </body>
+</html>
