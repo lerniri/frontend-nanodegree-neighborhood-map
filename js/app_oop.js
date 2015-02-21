@@ -1,3 +1,60 @@
+
+var WikiAPI = function() {
+
+	this.endpoint = "http://en.wikipedia.org/w/api.php?";
+	this.result = [];
+
+};
+
+/* search wiki pages based on specified word pattern
+ * returns array
+ *      title, link, snippet
+ */
+WikiAPI.prototype.searchWikiPages = function(searchStr) {
+
+	var url = this.endpoint+"format=json&action=query&list=search&srsearch="+searchStr+"&srlimit=5&callback=?";
+
+	//make ajax call and return a result
+	var result = [];
+
+	$.ajax({
+    	url: url,
+    	dataType: 'jsonp',
+    	success: function(data) {
+    		for (var i = 0; i < data.query.search.length; i++) {
+	       		result.push({
+	        		title 	: data.query.search[i].title,
+	        		link 	: constructWikiLink(data.query.search[i].title),
+	        		snippet	: data.query.search[i].snippet
+	        	});
+			}
+
+    	},
+    	error: function() {
+    		//TODO: implement error handling
+    	}
+
+	});
+
+
+	//construct wiki link
+	function constructWikiLink(title) {
+	 		return "http://en.wikipedia.org/wiki/"+title;
+	}
+
+};
+
+
+
+/* ============================================
+ *  			Flickr Api  Object
+/* ============================================ */
+var FlickrAPI = function() {
+	var endpoint = 'https://api.flickr.com/services';
+}
+
+
+
 var MapViewModel = function() {
 
 	/* VARIABLES */
@@ -8,7 +65,7 @@ var MapViewModel = function() {
 		infoWindow;			// google info window object
 
 
-    var wikiEndpoint = "http://en.wikipedia.org/w/api.php?";
+    var wiki = new WikiAPI();
 
 
 	var bikeLayer,			// google bike layer object
@@ -566,42 +623,16 @@ var MapViewModel = function() {
 	} // function loadInstagramMedia()
 
 
-
-	// TODO: Incapsulate to an object
 	function loadWikipediaInfo() {
 
 		if ( !self.placeInfoEnabled() || self.placeInfoPages().length > 0 ) {
-			//TODO: think of utilizing local storage to save loaded pics
+			//TODO: think of utilizing local storage for loaded pics
 			return;
 		};
 
+		self.placeInfoPages( wiki.searchWikiPages( self.myNeighborhood() ) );
 
-
-		var url = wikiEndpoint+"format=json&action=query&list=search&srsearch="+self.myNeighborhood()+"&srlimit=5&callback=?";
-
-		$.ajax({
-    		url: url,
-    		dataType: 'jsonp',
-    		success: function(data) {
-    			for (var i = 0; i < data.query.search.length; i++) {
-	       			self.placeInfoPages.push({
-	        			title 	: data.query.search[i].title,
-	        			link 	: constructWikiLink(data.query.search[i].title),
-	        			snippet	: data.query.search[i].snippet
-	        		});
-				}
-    		},
-    		error: function() {
-
-    		}
-
-		});
-
-		//construct wiki link
-		function constructWikiLink(title) {
-		 		//TODO: create varible or constant
-		 	return "http://en.wikipedia.org/wiki/"+title;
-		}
+		console.log( self.placeInfoPages() )
 
 
 	} //function loadWikipediaInfo()
@@ -612,3 +643,5 @@ var MapViewModel = function() {
 
 
 ko.applyBindings(new MapViewModel());
+
+

@@ -3,8 +3,14 @@
 
 html, body {
 	height:100%;
-	font-family: Verdana, sans-serif;
+}
+
+
+/* Typography */
+
+/*html, body {
 	font-size:12px;
+	font-family: Verdana, sans-serif;
 }
 
 h1 {
@@ -18,27 +24,27 @@ h2 {
 
 h3 {
 	font-size: 1.6em;
-}
+}*/
 
 h4 {
-	font-size: 1.4em;
+	/*font-size: 1.4em;*/
 	margin-bottom:10px;
 }
 
 h5 {
-	font-size: 1.2em;
+	/*font-size: 1.2em;*/
 	margin-bottom: 5px;
 }
 
-h6 {
+/*h6 {
 	font-size: 1.1em;
-}
+}*/
 
-.icon-eye,
-.icon-instagram {
+/*.icon-eye,
+.icon-instagram-filled {
 	font-size: 3em;
-	color: rgb(255, 60, 23);
-}
+	color: rgb(56, 75, 117);
+}*/
 
 .wrapper {
 	width:100%;
@@ -55,16 +61,18 @@ h6 {
 #search-bar {
   max-width: 350px;
   display: flex;
-  -webkit-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
-  -moz-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
-  box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+
 }
 
 
 #search-input {
-	width:90%;
+	width:100%;
 	height:35px;
 	padding:2px;
+	border:0;
+	-webkit-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+  	-moz-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+  	box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
 }
 
 
@@ -72,30 +80,38 @@ h6 {
 	outline:none !important;
 }
 
-#search-btn {
+
+.icon-cw {
+	/*font-size: 2em;*/
+	margin-top: 5px;
+	cursor: pointer;
+}
+
+
+
+/*#search-btn {
 	width:40px;
 	height:35px;
-}
+}*/
 
-#search-btn:hover {
+/*#search-btn:hover {
 	background-color: darkgrey;
 
-}
+}*/
 
-#search-btn:active {
+/*#search-btn:active {
 	outline:none !important;
 	border:0 !important;
 }
-
-
-#search-input,
+*/
+/*
+#search-input
 #search-btn {
 	border:0;
-}
+}*/
 
 
-#places-list-topbar {
-  /*height: 80px;*/
+/*#places-list-topbar {
   background-color:  transparent;
   text-align: right;
   padding: 10px;
@@ -104,12 +120,23 @@ h6 {
 
 
 #places-list-topbar h5 {
-	/*background-color: rgba(250, 99, 72, 0.88);*/
 	padding:10px;
 	border-radius: 8px;
 	font-weight: bold;
 }
 
+
+#layers ul  {
+	display: flex;
+	justify-content: space-around;
+	margin-top: 10px;
+
+}
+
+#layers ul li {
+	cursor:pointer;
+	font-size: 2em;
+}
 
 #neighborhood-input {
 	margin-bottom:10px;
@@ -129,7 +156,7 @@ h6 {
 	overflow-x: hidden;
   	overflow-y: scroll;
   	height:75vh;
-}
+}*/
 
 .place-categories-list {
 	margin-top: 5px;
@@ -225,3 +252,20 @@ h6 {
 	white-space: nowrap;
 }
 
+#loader {
+	text-align: center;
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.73);
+  width: 100%;
+  height: inherit;
+}
+
+#loader img {
+	margin-top: 80%;
+}
+
+#loader span {
+	 display: block;
+  	font-weight: bold;
+  	margin-top: 10px;
+}
