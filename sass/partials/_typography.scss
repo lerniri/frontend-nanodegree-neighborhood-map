@@ -1,0 +1,58 @@
+body {
+	font-family: $font-family-main;
+	font-size: 12px;
+}
+
+
+h1 {
+	font-size: 2em;
+}
+
+h2 {
+	font-size: 1.8em;
+}
+
+h3 {
+	font-size: 1.6em;
+}
+
+h4 {
+	font-size: 1.4em;
+}
+
+h5 {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+h6 {
+	font-size: 1.1em;
+	font-weight: bold;
+}
+
+
+#infowindow-div {
+
+	p {
+		font-size: .9em;
+		font-style: italic;
+	}
+}
+
+
+.review {
+	font-size:.8em;
+}
+
+.icon-eye,
+.icon-instagram-filled,
+.icon-signal,
+.icon-help
+ {
+	font-size: 3em;
+}
+
+.reset-icon {
+	font-size: 2em;
+}
+
