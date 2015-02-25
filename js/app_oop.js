@@ -1,59 +1,257 @@
+var shouter = new ko.subscribable();
 
-var WikiAPI = function() {
 
-	this.endpoint = "http://en.wikipedia.org/w/api.php?";
-	this.result = [];
+var AddInfoViewModel = function() {
+
+	var self = this;
+
+	self.placeInfoEnabled		= ko.observable(false);			// boolean value, indicating whether placeInfo view is currently enabled or disabled
+	self.instagramEnabled   	= ko.observable(false);			// boolean value, indicating whether instagram view is currently enabled or disabled
+	self.addInfoLoading 		= ko.observable(false);
+	self.showAddInfoWindow      = ko.observable(false);
+
+	self.placeInfoEnabled.subscribe(function(newValue) {
+		shouter.notifySubscribers(newValue, "placeInfoEnabled");
+	});
+
+	self.instagramEnabled.subscribe(function(newValue) {
+		shouter.notifySubscribers(newValue, "instagramEnabled");
+	});
+
+	self.toggleWiki = function() {
+		self.placeInfoEnabled( !self.placeInfoEnabled() );
+
+		// hide instagram and news
+		if ( self.placeInfoEnabled() ) {
+			self.instagramEnabled(false);
+		}
+	};
+
+
+	self.toggleInstagram = function() {
+
+		self.instagramEnabled( !self.instagramEnabled() );
+		// // hide wiki and news
+		if ( self.instagramEnabled() ) {
+			self.placeInfoEnabled(false);
+		}
+	};
+
+	self.computedShowAddInfo	= ko.computed(function() {
+		var $addinfo = $(".addinfo-content");
+		if ( self.instagramEnabled() || self.placeInfoEnabled() ) {
+			self.showAddInfoWindow(true);
+			$addinfo.addClass('show-addinfo');
+		} else if ( !self.instagramEnabled() && !self.placeInfoEnabled()) {
+			self.showAddInfoWindow(false);
+			$addinfo.removeClass('show-addinfo');
+		}
+	});
 
 };
 
-/* search wiki pages based on specified word pattern
- * returns array
- *      title, link, snippet
- */
-WikiAPI.prototype.searchWikiPages = function(searchStr) {
 
-	var url = this.endpoint+"format=json&action=query&list=search&srsearch="+searchStr+"&srlimit=5&callback=?";
+/* ============================================
+ *  			Wikipedia View Model
+ /* ============================================ */
 
-	//make ajax call and return a result
-	var result = [];
+var WikiViewModel = function() {
 
-	$.ajax({
-    	url: url,
-    	dataType: 'jsonp',
-    	success: function(data) {
-    		for (var i = 0; i < data.query.search.length; i++) {
-	       		result.push({
-	        		title 	: data.query.search[i].title,
-	        		link 	: constructWikiLink(data.query.search[i].title),
-	        		snippet	: data.query.search[i].snippet
-	        	});
-			}
+	var self = this;
 
-    	},
-    	error: function() {
-    		//TODO: implement error handling
+	var endpoint = "http://en.wikipedia.org/w/api.php?";
+	var wikiLink = "http://en.wikipedia.org/wiki/" ;
+
+	self.placeInfoPages 		= ko.observableArray([]);
+    self.myNeighborhood 		= ko.observable("");
+    self.placeInfoEnabled  		= ko.observable(false);
+
+    shouter.subscribe(function(newValue){
+    	self.placeInfoEnabled(newValue);
+    }, self, "placeInfoEnabled");
+
+    shouter.subscribe(function(newValue) {
+        self.myNeighborhood(newValue);
+        self.placeInfoPages([]);
+    }, self, "neighborhood");
+
+
+    self.placeInfoEnabledComputed = ko.computed(function(){
+    	if (self.placeInfoEnabled()) {
+    		searchWikiPages(self.myNeighborhood());
     	}
+    });
+
+	function searchWikiPages(searchStr) {
+
+		if ( !self.placeInfoEnabled() || self.placeInfoPages().length > 0 ) {
+			return;
+		}
+
+		var url = endpoint+"format=json&action=query&list=search&srsearch="+searchStr+"&srlimit=5&callback=?";
+
+		$.ajax({
+	    	url: url,
+	    	dataType: 'jsonp',
+	    	success: function(data) {
+	    		for (var i = 0; i < data.query.search.length; i++) {
+		       		self.placeInfoPages.push({
+		        		title 	: data.query.search[i].title,
+		        		link 	: constructWikiLink(data.query.search[i].title),
+		        		snippet	: data.query.search[i].snippet
+		        	});
+				}
+
+	    	},
+	    	error: function() {
+	    		//TODO: implement error handling
+	    	}
+
+		});
+	}
+
+	//construct wiki link
+	function constructWikiLink(title) {
+	 	return wikiLink+title;
+	}
+};
+
+/* ============================================
+ *  			Flickr View Model
+/* ============================================ */
+var FlickrViewModel = function() {
+	var self = this;
+
+	var endpoint = 'https://api.flickr.com/services/rest/';
+	var api_key  = 'ae6f6113a6236df9a8fe6eb32616175d';
+
+	self.instagramEnabled		= ko.observable(false);
+	self.neighborhoodImages	 	= ko.observableArray([]);
+	self.neighborhoodLoc		= ko.observable();
+	self.myNeighborhood			= ko.observable();
+
+	shouter.subscribe(function(newValue){
+    	self.instagramEnabled(newValue);
+    }, self, "instagramEnabled");
+
+    shouter.subscribe(function(newValue){
+    	self.neighborhoodLoc(newValue);
+    }, self, "neighborhoodLoc");
+
+    shouter.subscribe(function(newValue){
+    	self.myNeighborhood(newValue);
+    	self.neighborhoodImages([]);
+    }, self, "neighborhood");
+
+	self.computedLoadInstagram = ko.computed(function(){
+		// quit function in case instagram  window is closing
+		if ( !self.instagramEnabled() || self.neighborhoodImages().length > 0 ) {
+			//TODO: think of utilizing local storage to save loaded pics
+			return;
+		}
+
+		loadImages();
 
 	});
 
 
-	//construct wiki link
-	function constructWikiLink(title) {
-	 		return "http://en.wikipedia.org/wiki/"+title;
+	function loadImages() {
+
+
+
+		var min_upload_date  =  Date.now() - 60 * 60 * 24 * 30, // (30 days in ms)
+			privacy_filter  	= 1, 	//public photos
+			content_type  		= 1, 	//photos only
+			lat 				= self.neighborhoodLoc().lat(),
+			lng 				= self.neighborhoodLoc().lng(),
+			text 				= self.myNeighborhood(),
+			per_page 			= 20;
+
+		var url = endpoint+"?method=flickr.photos.search&api_key="+api_key+"&lat="+lat+"&lng="
+					+lng+"&text="+text+"&privacy_filter="
+					+privacy_filter+"&content_type="+content_type+"&per_page="+per_page;
+
+
+
+		$.ajax({
+			url: url,
+			data: "format=json",
+			jsonp: "jsoncallback",
+			dataType: "jsonp",
+			success: function(data)
+
+				//<photo id="16276924357" owner="117904051@N02" secret="7f77486978" server="8673" farm="9" title="Mil Mi-8" ispublic="1" isfriend="0" isfamily="0"/>
+				{
+		   			for (var i = 0 ; i < data.photos.photo.length ; i++) {
+
+		   				self.neighborhoodImages.push({
+		   					"title"		: data.photos.photo[i].title,
+		   					"owner"		: data.photos.photo[i].owner,
+		   					"pic_thumb"	: constructImageURL(data.photos.photo[i], 'z'),
+		   					"pic"		: constructImageURL(data.photos.photo[i], 'b')
+		   				});
+		   			}
+				},
+    		error: function()
+        		{
+            	//TODO: add error handling
+        	}
+		});
+
+		console.log(self.neighborhoodImages());
 	}
+
+
+	/* Sizes
+		s	small square 75x75
+		q	large square 150x150
+		t	thumbnail, 100 on longest side
+		m	small, 240 on longest side
+		n	small, 320 on longest side
+		-	medium, 500 on longest side
+		z	medium 640, 640 on longest side
+		c	medium 800, 800 on longest side†
+		b	large, 1024 on longest side*
+		h	large 1600, 1600 on longest side†
+		k	large 2048, 2048 on longest side†
+		o	original image, either a jpg, gif or png, depending on source format
+	*/
+	function constructImageURL(photoObj, size) {
+
+		return "https://farm"+photoObj.farm+".staticflickr.com/"+photoObj.server+"/"+photoObj.id+"_"+photoObj.secret+"_"+size+".jpg";
+	}
+};
+
+/* ============================================
+ *  			Instagram View Model
+/* ============================================ */
+var InstagramViewModel = function() {
+
+	var self = this;
+
+	var endpoint 		= "https://api.instagram.com/v1/";
+	var access_token 	= '36229642.37a7c6f.21f4b44989b94872b6116fe8eeededf8';
+
+
+	self.instagramEnabled		= ko.observable(false);
+	self.neighborhoodImages	 	= ko.observableArray([]);
+	self.neighborhoodLoc		= ko.observable();
+
+
+	shouter.subscribe(function(newValue) {
+    	self.instagramEnabled(newValue);
+    }, self, "instagramEnabled");
+
+	shouter.subscribe(function(newValue) {
+		self.neighborhoodLoc(newValue);
+	}, self, "neighborhoodLoc");
 
 };
 
 
-
 /* ============================================
- *  			Flickr Api  Object
+ *  			Map View Model
 /* ============================================ */
-var FlickrAPI = function() {
-	var endpoint = 'https://api.flickr.com/services';
-}
-
-
 
 var MapViewModel = function() {
 
@@ -63,10 +261,6 @@ var MapViewModel = function() {
 	var map,  				// google map object
 		placesService,      // google places service object
 		infoWindow;			// google info window object
-
-
-    var wiki = new WikiAPI();
-
 
 	var bikeLayer,			// google bike layer object
 		trafficLayer,		// google traffic layer object
@@ -86,6 +280,7 @@ var MapViewModel = function() {
 		'zoo'
 	];
 
+	// TODO: make it current user location
 	var defaultNeighborhood = "Tushino";	// default neighborhood
 	var nearbyMarkers	= [];				// array with nearby places markers
 
@@ -96,25 +291,21 @@ var MapViewModel = function() {
 
 	/* 	OBSERVABLES  */
 
-	self.myNeighborhood 		= ko.observable( defaultNeighborhood ); // current neighborhood
-	self.nearbyPlaces 			= ko.observableArray();					// list of nearby places
-	self.keywordSearch			= ko.observable("");					// search keyword
-	self.neighborhoodImages 	= ko.observableArray([]);				// list of neighborhood images
+	self.myNeighborhood 		= ko.observable( defaultNeighborhood ); 	// current neighborhood
+	self.neighborhoodLoc		= ko.observable();
+	self.nearbyPlaces 			= ko.observableArray([]);					// list of nearby places
+	self.keywordSearch			= ko.observable("");						// search keyword
 
 	self.bikeLayerEnabled 		= ko.observable(false);					// boolean value, indicating whether bike layer is currently enabled or disabled
 	self.trafficLayerEnabled 	= ko.observable(false);					// boolean value, indicating whether traffic layer is currently enabled or disabled
 	self.transitLayerEnabled 	= ko.observable(false);					// boolean value, indicating whether transit layer is currently enabled or disabled
 
-	self.instagramEnabled		= ko.observable(false);					// boolean value, indicating whether instagram view is currently enabled or disabled
-	self.placeInfoEnabled		= ko.observable(false);					// boolean value, indicating whether placeInfo view is currently enabled or disabled
-	self.newsFeedEnabled		= ko.observable(false);					// boolean value, indicating whether newsFeed view is currently enabled or disabled
-
-	self.placeInfoPages 		= ko.observableArray([]);				// list of wiki pages found for neighborhood
-
 	self.showAddInfoWindow 		= ko.observable(false);
-
 	self.loading 				= ko.observable(false);
-	self.addInfoLoading 		= ko.observable(false);
+
+	self.myNeighborhood.subscribe(function(newValue) {
+		shouter.notifySubscribers(newValue, "neighborhood");
+	});
 
 	self.toggleBikeLayer = function() {
 		self.bikeLayerEnabled( !self.bikeLayerEnabled() );
@@ -131,53 +322,9 @@ var MapViewModel = function() {
 		showHideLayers();
 	};
 
-	self.toggleInstagram = function() {
-
-		self.instagramEnabled( !self.instagramEnabled() );
-
-		// // hide wiki and news
-		if ( self.instagramEnabled() ) {
-
-			self.placeInfoEnabled(false);
-			self.newsFeedEnabled(false);
-		}
-
-		// showHideAdditionalInfoWindow();
-		loadInstagramMedia();
-	};
-
-	self.toggleWiki = function() {
-		self.placeInfoEnabled( !self.placeInfoEnabled() );
-
-		// hide instagram and news
-		if ( self.placeInfoEnabled() ) {
-
-			self.instagramEnabled(false);
-			self.newsFeedEnabled(false);
-		}
-
-
-		//showHideAdditionalInfoWindow();
-		loadWikipediaInfo();
-
-	};
-
-	self.toggleNews = function() {
-		self.newsFeedEnabled( !self.newsFeedEnabled() );
-
-		// hide insta and wiki
-		if ( self.newsFeedEnabled() ) {
-			self.placeInfoEnabled(false);
-			self.instagramEnabled(false);
-		}
-
-		showHideAdditionalInfoWindow();
-		loadNewsBBC();
-	};
-
 	// UI Events
 	self.panMapToClickedPlace = function() {
-		for (i=0; i<nearbyMarkers.length; i++) {
+		for (var i=0; i<nearbyMarkers.length; i++) {
 			if (nearbyMarkers[i].name === this.name) {
 				//pan map to marker
 				map.panTo(nearbyMarkers[i].position);
@@ -185,13 +332,13 @@ var MapViewModel = function() {
 
 			}
 		}
-	}
+	};
 
 
 	self.resetSearchFilter = function() {
 		self.keywordSearch("");
 		requestNeighborhood();
-	}
+	};
 
 
 	/*
@@ -199,6 +346,13 @@ var MapViewModel = function() {
 	*/
 
 	initMap();
+
+	$(document).click(function(event){
+		if ( $(event.target).closest('div.addinfo-content').length > 1 ) {
+			self.showAddInfoWindow(false);
+		}
+
+	});
 
 
 
@@ -208,10 +362,9 @@ var MapViewModel = function() {
 	*/
 
 	self.computedNeighborhood = ko.computed(function() {
-
 		if (self.myNeighborhood() !== '') {
-			self.placeInfoPages([]);
-			self.neighborhoodImages([]);
+			// WikiViewModel.placeInfoPages([]);
+			// InstagramViewModel.neighborhoodImages([]);
 			requestNeighborhood();
 		}
 
@@ -224,22 +377,27 @@ var MapViewModel = function() {
 			requestNearbyPlacesKeyword();
 		}
 
+		//Filter list by name----
+
 	});
 
-	self.computedShowAddInfo	= ko.computed(function() {
-		var $addinfo = $(".addinfo-content");
-		if ( self.instagramEnabled() || self.placeInfoEnabled() ) {
-			self.showAddInfoWindow(true);
-			$addinfo.addClass('show-addinfo');
-		} else if ( !self.instagramEnabled() && !self.placeInfoEnabled()) {
-			self.showAddInfoWindow(false);
-			$addinfo.removeClass('show-addinfo');
-		}
-	});
+	// self.computedShowAddInfo	= ko.computed(function() {
+	// 	var $addinfo = $(".addinfo-content");
+	// 	if ( self.instagramEnabled() || self.placeInfoEnabled() ) {
+	// 		self.showAddInfoWindow(true);
+	// 		$addinfo.addClass('show-addinfo');
+	// 	} else if ( !self.instagramEnabled() && !self.placeInfoEnabled()) {
+	// 		self.showAddInfoWindow(false);
+	// 		$addinfo.removeClass('show-addinfo');
+	// 	}
+	// });
 
 
 	// initialize map
 	function initMap() {
+
+		shouter.notifySubscribers(self.myNeighborhood(), "neighborhood");
+
  		var mapOptions = {
  			zoom:14,
 			mapTypeControl:false,
@@ -297,23 +455,26 @@ var MapViewModel = function() {
 
 			var myLocation	= new google.maps.LatLng(lat,lng);
 
+			shouter.notifySubscribers(myLocation, "neighborhoodLoc");
+
 			map.setCenter(myLocation);
 			//set marker
 
 			//load photos
-			var myKey = "AIzaSyCV9N5j38lkbSHp46-pYU5Wh01ijgSwq4w";
+			// Doesn't work currently
+			// var myKey = "AIzaSyCV9N5j38lkbSHp46-pYU5Wh01ijgSwq4w";
 
-			var url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+place.reference+"sensor=true&key="+myKey;
+			// var url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+place.reference+"sensor=true&key="+myKey;
 
-			console.log(url);
-			$.ajax({
-				url : url,
-				dataType: 'jsonp',
-				success: function(data) {
-					console.log(data);
-				}
+			// console.log(url);
+			// $.ajax({
+			// 	url : url,
+			// 	dataType: 'jsonp',
+			// 	success: function(data) {
+			// 		console.log(data);
+			// 	}
 
-			})
+			// })
 
 			//request and load nearby places
 			requestNearbyPlaces();
@@ -336,10 +497,8 @@ var MapViewModel = function() {
 			location: map.getCenter(),
 			radius: 1000,
 			types:placesTypes
-		}
+		};
 
-		// service = new google.maps.places.PlacesService(map);
-  		// service.search(request, requestNearbyPlacesCallback);
 		placesService.nearbySearch(request, loadNearbyPlaces);
 
 	}
@@ -353,12 +512,10 @@ var MapViewModel = function() {
 			location: map.getCenter(),
 			radius: 1000,
 			query: self.keywordSearch()
-		}
+		};
 
 		placesService.textSearch(request, loadNearbyPlaces);
-
-
-	};
+	}
 
 	/*
 		Load returned places to the list of places and load respective markers on the map
@@ -389,9 +546,6 @@ var MapViewModel = function() {
 			      
 			 	placesService.getDetails(request, function(place, status) {
 				if (status === GMAPS_PLACESSERVICE_STATUS_OK)   {
-					/*
-						do something
-					*/
 
 					//create mearby place
 					self.nearbyPlaces.push({
@@ -436,7 +590,7 @@ var MapViewModel = function() {
 			 	}
 			}); // process_result() function end
 
-		}
+		};
 
 			process_result(results, 0);
 
@@ -478,7 +632,7 @@ var MapViewModel = function() {
 
 		google.maps.event.addListener(marker, 'click', function() {
 
-			// //get place additional information
+			// get place additional information
         	infoWindow.setContent( "<div id='infowindow-div' class='noscroll'><h6>" + marker.name + "</h6><p>" + marker.address + "</p><span>"+ marker.phone +"</span></div>" );
         	infoWindow.open(map, this);
         	map.panTo(marker.position);
@@ -514,8 +668,6 @@ var MapViewModel = function() {
 	*/
 
 	function showHideAdditionalInfoWindow() {
-
-
 		var $addinfo = $('.addinfo-content');
 		if ( self.instagramEnabled() || self.placeInfoEnabled() || self.newsFeedEnabled() ) {
 			$addinfo.addClass('show-addinfo');
@@ -538,7 +690,7 @@ var MapViewModel = function() {
 		} else {
 			// hide bike layer
 			bikeLayer.setMap(null);
-		};
+		}
 
 		//transit layer
 		if (self.transitLayerEnabled()) {
@@ -547,7 +699,7 @@ var MapViewModel = function() {
 		} else {
 			//hide layer
 			transitLayer.setMap(null);
-		};
+		}
 
 		//traffic layer
 		if (self.trafficLayerEnabled()) {
@@ -556,92 +708,22 @@ var MapViewModel = function() {
 		} else {
 			//hide
 			trafficLayer.setMap(null);
-		};
-	};
-
-
-	/*
-		Load Instagram Media
-
-	*/
-
-	// TODO: Incapsulate to an object
-	function loadInstagramMedia() {
-
-		// quit function in case instagram  window is closing
-		if ( !self.instagramEnabled() || self.neighborhoodImages().length > 0 ) {
-
-			//TODO: think of utilizing local storage to save loaded pics
-			return;
-
-		};
-
-		var access_token = '36229642.37a7c6f.21f4b44989b94872b6116fe8eeededf8';
-		var lat = map.getCenter().lat();
-		var lng = map.getCenter().lng();
-
-		var url = "https://api.instagram.com/v1/media/search?lat="+lat+"&lng="+lng+"&access_token="+access_token;
-
-		self.addInfoLoading(true);
-
-		// make ajax call to Instagram media endpoint
-		$.ajax({
-			url: url,
-			dataType: 'jsonp',
-			success: function(result) {
-
-				if (result.meta.code === 200) {
-					//construct neighborhoodImages object
-					for ( i=0; i < result.data.length; i++ ) {
-
-						//TODO think of filtering images via request link
-
-						if ( result.data[i].type === 'image' ) {
-
-							self.neighborhoodImages.push({
-
-								author			: result.data[i].user.username,
-								name 			: result.data[i].location.name,
-								thumb_img		: result.data[i].images.thumbnail.url,
-								thumb_img_h		: result.data[i].images.thumbnail.height,
-								thumb_img_w		: result.data[i].images.thumbnail.width,
-								full_img		: result.data[i].images.standard_resolution.url,
-								full_img_h		: result.data[i].images.standard_resolution.height,
-								full_img_w		: result.data[i].images.standard_resolution.width
-							})
-						}
-					}
-
-					self.addInfoLoading(false);
-
-				} else {
-					//TODO: error handler
-				}
-
-			}
-		})
-	} // function loadInstagramMedia()
-
-
-	function loadWikipediaInfo() {
-
-		if ( !self.placeInfoEnabled() || self.placeInfoPages().length > 0 ) {
-			//TODO: think of utilizing local storage for loaded pics
-			return;
-		};
-
-		self.placeInfoPages( wiki.searchWikiPages( self.myNeighborhood() ) );
-
-		console.log( self.placeInfoPages() )
-
-
-	} //function loadWikipediaInfo()
-
-
+		}
+	}
 };
 
+/* =================================================
+ *	Master View Model
+ * =================================================*/
+var masterViewModel = function() {
 
+	this.AddInfoViewModel	= new AddInfoViewModel();
+	this.WikiViewModel 		= new WikiViewModel();
+	this.InstagramViewModel = new InstagramViewModel();
+	this.FlickrViewModel  	= new FlickrViewModel();
+	this.MapViewModel		= new MapViewModel();
+};
 
-ko.applyBindings(new MapViewModel());
-
-
+ko.applyBindings(new masterViewModel());
+// ko.applyBindings(new AddInfoViewModel() , $('.addinfo-wrapper')[0]);
+// ko.applyBindings(new MapViewModel());

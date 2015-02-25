@@ -336,22 +336,21 @@ html, body {
 #addinfo-wrapper .addinfo-content .info,
 #addinfo-wrapper .addinfo-content .news {
   background-color: rgba(255, 255, 255, 0.96);
-  padding: 15px 50px;
+  padding-right: 10px;
+  padding-left: 10px;
   box-shadow: inset 0px 0px 3px 0px rgba(0, 0, 0, 0.6);
 }
 #addinfo-wrapper .addinfo-content .instagram .img-gallery {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
   overflow-y: hidden;
   overflow-x: auto;
-  -webkit-justify-content: space-around;
-      -ms-flex-pack: distribute;
-          justify-content: space-around;
+  white-space: nowrap;
 }
 #addinfo-wrapper .addinfo-content .instagram .img-gallery li {
-  padding: 50px 100px;
+  display: inline-block;
+  height: 100%;
+}
+#addinfo-wrapper .addinfo-content .instagram .img-gallery li img {
+  height: inherit;
 }
 #addinfo-wrapper .addinfo-content .info {
   height: 80%;

@@ -289,7 +289,9 @@ html, body {
 		.news {
 			//background-color: rgba(10,10,10, .6);
 			background-color: rgba(255, 255, 255, 0.96);
-			padding: 15px 50px;
+			// padding: 15px 50px;
+			padding-right: 10px;
+			padding-left:10px;
 
 			-webkit-box-shadow: inset 0px 0px 3px 0px rgba(0,0,0,0.6);
 			-moz-box-shadow: inset 0px 0px 3px 0px rgba(0,0,0,0.6);
@@ -303,15 +305,23 @@ html, body {
 
 			.img-gallery {
 
-				display: flex;
-  				overflow-y: hidden;
+				//display: flex;
+				overflow-y: hidden;
   				overflow-x: auto;
-  				justify-content: space-around;
+  				white-space: nowrap;
+  				//justify-content: space-around;
 
 
   				li {
-  					padding: 50px 100px;
+  					display:inline-block;
+					height:100%;
+
+  					img {
+						height:inherit;
+  					}
+
   				}
+
 			}
 		}
 

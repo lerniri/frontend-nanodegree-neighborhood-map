@@ -143,6 +143,14 @@ var MapViewModel = function() {
 
 	initMap();
 
+	$(document).click(function(event){
+
+		if ( $(event.target).closest('div.addinfo-content').length > 1 ) {
+			self.showAddInfoWindow(false);
+		}
+
+	});
+
 
 
 	// COMPUTED OBSERVABLES
@@ -163,9 +171,11 @@ var MapViewModel = function() {
 
 	self.computedKeywordSearch	= ko.computed(function() {
 
-		if (self.keywordSearch() !== "") {
-			requestNearbyPlacesKeyword();
-		}
+		// if (self.keywordSearch() !== "") {
+		// 	requestNearbyPlacesKeyword();
+		// }
+
+		//Filter list
 
 	});
 
