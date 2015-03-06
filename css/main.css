@@ -136,6 +136,7 @@ html, body {
   position: absolute;
   height: 100%;
   width: 100%;
+  top: 50px;
 }
 
 /* Marker Info div */
@@ -151,11 +152,54 @@ html, body {
   margin-bottom: 15px;
 }
 
+/* Top Bar Wrapper */
+.topbar {
+  height: 50px;
+  background-color: #860000;
+  padding: 15px;
+  box-sizing: border-box;
+}
+.topbar .searches {
+  width: 75%;
+  float: left;
+}
+.topbar .searches input {
+  margin-bottom: 10px;
+}
+.topbar .searches input.neighborhood-search {
+  width: 30%;
+  max-width: 300px;
+}
+.topbar .searches input.places-search {
+  width: 60%;
+  max-width: 600px;
+}
+.topbar .layers {
+  float: right;
+  width: 25%;
+  max-width: 330px;
+}
+.topbar .layers ul {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-justify-content: space-around;
+      -ms-flex-pack: distribute;
+          justify-content: space-around;
+}
+.topbar .layers ul li {
+  cursor: pointer;
+  font-size: 2em;
+  color: #e8e8e8;
+}
+
 /* 	Places List Wrapper	*/
 #places-list-wrapper {
   position: fixed;
   right: 5px;
-  top: 5px;
+  top: 50px;
+  min-width: 200px;
 }
 #places-list-wrapper i[class^="icon-"] {
   color: #3a4d77;
@@ -164,46 +208,19 @@ html, body {
   padding: 10px 10px 10px 0;
   border-radius: 8px;
 }
-#places-list-wrapper .topbar input {
-  margin-bottom: 10px;
+#places-list-wrapper .header {
+  background-color: #fdfcfb;
+  border-bottom: 1px solid #eae4e4;
+  height: 60px;
+  padding-top: 40px;
+  text-align: center;
   width: 100%;
-}
-#places-list-wrapper .topbar .neighborhood-search {
-  height: 25px;
-}
-#places-list-wrapper .topbar .places-search {
-  height: 35px;
-  padding: 2px;
-  border: 0;
-  box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
-}
-#places-list-wrapper .topbar .places-search:focus {
-  outline: none !important;
-}
-#places-list-wrapper .topbar .menu-bar ul {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-justify-content: space-around;
-      -ms-flex-pack: distribute;
-          justify-content: space-around;
-  margin-top: 10px;
-}
-#places-list-wrapper .topbar .menu-bar ul li {
-  cursor: pointer;
-  font-size: 2em;
-}
-#places-list-wrapper .topbar .reset-ico {
-  cursor: pointer;
-  position: absolute;
-  font-size: 1.5em;
-  padding: 5px;
 }
 #places-list-wrapper .content {
   overflow-x: hidden;
   overflow-y: auto;
-  height: 75vh;
+  height: 90vh;
+  width: 100%;
 }
 #places-list-wrapper .content .loader {
   text-align: center;
@@ -374,4 +391,13 @@ html, body {
 #addinfo-wrapper .addinfo-content .info p {
   font-size: 1.2em;
   padding: 20px;
+}
+
+@media screen and (max-width: 500px) {
+  .layers {
+    font-size: .6em;
+  }
+  .layers ul {
+    margin-top: 5px;
+  }
 }

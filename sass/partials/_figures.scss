@@ -27,6 +27,7 @@ html, body {
 	position:absolute;
 	height:100%;
 	width:100%;
+	top:50px;
 }
 
 /* Marker Info div */
@@ -47,13 +48,110 @@ html, body {
 
 }
 
+/* Top Bar Wrapper */
+
+.topbar {
+
+	height:50px;
+	background-color: rgb(134, 0, 0);
+	padding:15px;
+	box-sizing:border-box;
+
+	.searches {
+		width:75%;
+		float:left;
+
+		input {
+			margin-bottom:10px;
+			&.neighborhood-search {
+				width:30%;
+				max-width: 300px;
+			}
+			&.places-search {
+				width:60%;
+				max-width: 600px;
+			}
+		}
+
+
+	}
+
+
+
+	.layers {
+
+		float:right;
+		width:25%;
+		max-width: 330px;
+
+
+		ul {
+			display: flex;
+			justify-content: space-around;
+
+			li {
+
+		 		cursor:pointer;
+		 		font-size: 2em;
+		 		color:rgb(232, 232, 232);
+
+			}
+		}
+
+	}
+
+
+
+
+		// .neighborhood-search {
+		// 	height:25px;
+		// }
+
+		// .places-search {
+		// 	height:35px;
+		// 	padding:2px;
+		// 	border:0;
+		// 	-webkit-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+  // 			-moz-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+  // 			box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+
+		// 	&:focus {
+		// 		outline: none !important;
+		// 	}
+
+		// }
+
+		// .menu-bar {
+
+		// 	ul {
+		// 		display: flex;
+		// 		justify-content: space-around;
+		// 		margin-top: 10px;
+
+		// 		li {
+		// 			cursor:pointer;
+		// 			font-size: 2em;
+		// 		}
+		// 	}
+
+		// }
+
+		// .reset-ico {
+		// 	cursor:pointer;
+		// 	position: absolute;
+		// 	font-size:1.5em;
+		// 	padding:5px;
+		// }
+}
+
 /* 	Places List Wrapper	*/
 
 #places-list-wrapper {
 
 	position:fixed;
 	right:5px;
-	top:5px;
+	top:50px;
+	min-width:200px;
 
 	i[class^="icon-"] {
 		color: $icons-main-color;
@@ -64,64 +162,21 @@ html, body {
 		border-radius: 8px;
 	}
 
-	.topbar {
-
-		input {
-			margin-bottom:10px;
-			width:100%;
-
-		}
-
-
-
-
-		.neighborhood-search {
-			height:25px;
-		}
-
-		.places-search {
-			height:35px;
-			padding:2px;
-			border:0;
-			-webkit-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
-  			-moz-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
-  			box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
-
-			&:focus {
-				outline: none !important;
-			}
-
-		}
-
-		.menu-bar {
-
-			ul {
-				display: flex;
-				justify-content: space-around;
-				margin-top: 10px;
-
-				li {
-					cursor:pointer;
-					font-size: 2em;
-				}
-			}
-
-		}
-
-		.reset-ico {
-			cursor:pointer;
-			position: absolute;
-			font-size:1.5em;
-			padding:5px;
-		}
-
+	.header {
+		background-color: #fdfcfb;
+    	border-bottom: 1px solid #eae4e4;
+    	height: 60px;
+    	padding-top: 40px;
+    	text-align: center;
+    	width: 100%;
 	}
 
 	.content {
 
 		overflow-x: hidden;
   		overflow-y: auto;
-  		height:75vh;
+  		height:90vh;
+  		width:100%;
 
   		.loader {
 
