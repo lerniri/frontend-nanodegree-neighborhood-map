@@ -44,15 +44,33 @@ h6 {
 	font-size:.8em;
 }
 
-.icon-eye,
-.icon-instagram-filled,
-.icon-signal,
-.icon-help
- {
-	font-size: 3em;
+
+#addinfo-wrapper {
+	.inner {
+		.menu {
+			ul {
+				li {
+					i {
+						font-size: 3em;
+						color: rgb(113, 1, 1);
+					}
+				}
+			}
+		}
+	}
+
 }
+
 
 .reset-icon {
 	font-size: 2em;
 }
 
+.topbar {
+	.searches {
+		i {
+			font-size: 1.6em;
+			color:white;
+		}
+	}
+}

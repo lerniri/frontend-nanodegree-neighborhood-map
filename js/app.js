@@ -166,8 +166,8 @@ var FlickrViewModel = function() {
 			per_page 			= 20;
 
 		var url = endpoint+"?method=flickr.photos.search&api_key="+api_key+"&lat="+lat+"&lng="
-					+lng+"&text="+text+"&privacy_filter="
-					+privacy_filter+"&content_type="+content_type+"&per_page="+per_page;
+					+ lng+"&text="+text+"&privacy_filter="
+					+ privacy_filter+"&content_type="+content_type+"&per_page="+per_page;
 
 
 
@@ -281,16 +281,17 @@ var MapViewModel = function() {
 	var defaultNeighborhood = "Tushino";	// default neighborhood
 	var nearbyMarkers	= [];				// array with nearby places markers
 
-
 	var GMAPS_PLACESSERVICE_STATUS_OK = google.maps.places.PlacesServiceStatus.OK;
 	var GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT = google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT;
 
 
 	/* 	OBSERVABLES  */
 
-	self.myNeighborhood 		= ko.observable( defaultNeighborhood ); 	// current neighborhood
+	self.myNeighborhood 		= ko.observable(""); 	// current neighborhood
 	self.neighborhoodLoc		= ko.observable();
-	self.nearbyPlaces 			= ko.observableArray([]);					// list of nearby places
+	self.nearbyPlaces 			= ko.observableArray([]);				    // list of nearby places
+	self.noPlacesToShow			= ko.observable(true);
+
 	self.keywordSearch			= ko.observable("");						// search keyword
 	self.chosenMarker 			= ko.observable("");
 
@@ -300,8 +301,6 @@ var MapViewModel = function() {
 
 	self.showAddInfoWindow 		= ko.observable(false);
 	self.loading 				= ko.observable(false);
-
-	self.nothingFound 			= ko.observable(false);
 
 
 	self.myNeighborhood.subscribe(function(newValue) {
@@ -326,8 +325,13 @@ var MapViewModel = function() {
 	// UI Events
 	self.panMapToClickedPlace = function() {
 
-		map.panTo(this.marker.position);
-		new google.maps.event.trigger(this.marker, 'click');
+		for (i=0; i<nearbyMarkers.length; i++) {
+			if (nearbyMarkers[i].name === this.name) {
+				//pan map to marker
+				map.panTo(nearbyMarkers[i].position);
+				new google.maps.event.trigger( nearbyMarkers[i], 'click' );
+			}
+		}
 	};
 
 
@@ -342,6 +346,7 @@ var MapViewModel = function() {
 	*/
 
 	initMap();
+
 
 	$(document).click(function(event){
 		if ( $(event.target).closest('div.addinfo-content').length > 1 ) {
@@ -362,23 +367,8 @@ var MapViewModel = function() {
 			// WikiViewModel.placeInfoPages([]);
 			// InstagramViewModel.neighborhoodImages([]);
 			requestNeighborhood();
-		}
-
-	});
-
-
-	self.computedKeywordSearch	= ko.computed(function() {
-
-		if (self.keywordSearch() !== "") {
-			//requestNearbyPlacesKeyword();
-			//Filter list by name and type
-			var keywords = self.keywordSearch().split(' ');
-			filterPlaces(keywords);
-
 
 		}
-
-		//Filter list by name----
 
 	});
 
@@ -386,11 +376,11 @@ var MapViewModel = function() {
 		if (self.chosenMarker() !== "") {
 
 			//stop animation of others
-			self.nearbyPlaces().forEach(function(item) {
-				item.marker.setAnimation(null);
+			nearbyMarkers.forEach(function(item) {
+				item.setAnimation(null);
 			});
 
-  			if (self.chosenMarker().getAnimation() != null) {
+  			if (self.chosenMarker().getAnimation() !== null) {
     			self.chosenMarker().setAnimation(null);
     			return false;
   			} else {
@@ -422,10 +412,28 @@ var MapViewModel = function() {
   		/*
   			Init  Layers
   		*/
+
+  		// @TODO find user position and assign it to current neighborhood.
+
+  		var loc = {};
+    	var geocoder = new google.maps.Geocoder();
+
+    	if(google.loader.ClientLocation) {
+
+        	loc.lat = google.loader.ClientLocation.latitude;
+        	loc.lng = google.loader.ClientLocation.longitude;
+
+        	var latlng = new google.maps.LatLng(loc.lat, loc.lng);
+
+    	}
+
   		bikeLayer 	 = new google.maps.BicyclingLayer();
   		trafficLayer = new google.maps.TrafficLayer();
   		transitLayer = new google.maps.TransitLayer();
 
+  		/*
+  			Find user position
+  		*/
 
   		google.maps.event.addDomListener(window, "resize", function() {
      		var center = map.getCenter();
@@ -435,11 +443,13 @@ var MapViewModel = function() {
 
 	}
 
+
 	/* requestNeighborhood() function:
 	 *
 	 *	Search neighborhood map data
 	 */
 	function requestNeighborhood() {
+
 		var request = {
     		query: self.myNeighborhood()
   		};
@@ -466,30 +476,12 @@ var MapViewModel = function() {
 			shouter.notifySubscribers(myLocation, "neighborhoodLoc");
 
 			map.setCenter(myLocation);
-			//set marker
-
-			//load photos
-			// Doesn't work currently
-			// var myKey = "AIzaSyCV9N5j38lkbSHp46-pYU5Wh01ijgSwq4w";
-
-			// var url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+place.reference+"sensor=true&key="+myKey;
-
-			// console.log(url);
-			// $.ajax({
-			// 	url : url,
-			// 	dataType: 'jsonp',
-			// 	success: function(data) {
-			// 		console.log(data);
-			// 	}
-
-			// })
-
-			//request and load nearby places
 			requestNearbyPlaces();
 
 		} else {
 
 			// error handler
+			console.log("Something is wrong");
 		}
 	}
 
@@ -533,7 +525,10 @@ var MapViewModel = function() {
 
 		if (status === GMAPS_PLACESSERVICE_STATUS_OK) {
 			//Load places list
+
 			self.nearbyPlaces([]);
+			//nearbyPlaces = [];
+
 			// clearMarkers();
 
 			// var service = new google.maps.places.PlacesService(map);
@@ -557,15 +552,6 @@ var MapViewModel = function() {
 				if (status === GMAPS_PLACESSERVICE_STATUS_OK)   {
 
 
-					// var placeMarker = new google.maps.Marker({
-					// 	position	: place.geometry.location,
-					// 	name 		: place.name,
-					// 	address 	: place.formatted_address,
-					// 	phone 		: place.formatted_phone_number
-
-					// 	//add more options used by info window
-					// });
-
 					//create mearby place
 					self.nearbyPlaces.push({
 						name		: place.name,
@@ -576,26 +562,29 @@ var MapViewModel = function() {
 						rating		: place.user_ratings_total,
 						website		: place.website,
 						reviews		: place.reviews,
-						photos		: place.photos
-						// marker 		: placeMarker
+						photos		: place.photos,
+						showItem	: true
 
 					});
+
 
 					nearbyMarkers.push(new google.maps.Marker({
 						position	: place.geometry.location,
 						name 		: place.name,
 						address 	: place.formatted_address,
-						phone 		: place.formatted_phone_number
+						phone 		: place.formatted_phone_number,
+						showMarker  : true
 
 						//add more options used by info window
 					}));
 
 					setMarker(nearbyMarkers[i], place);
 
-  					//setMarker(marker, place);
-
 					// increment 'i'
 					process_result(result, i+1);
+
+					//
+					self.noPlacesToShow(false);
 
 				} else if (status === GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT) {
 
@@ -618,6 +607,8 @@ var MapViewModel = function() {
 
 		}
 
+
+
 	} // loadNearbyPlaces() END
 
 
@@ -638,32 +629,70 @@ var MapViewModel = function() {
 	/*
 		filter places by search key contained in place name or types
 	*/
-	function filterPlaces(words) {
+	self.filterPlaces = function () {
 
+		var words = self.keywordSearch().split(' ');
 
-		var list = [];
+		var list = self.nearbyPlaces();
 
-		self.nearbyPlaces().forEach(function(item) {
+		self.nearbyPlaces([]);
+		self.noPlacesToShow(true);
 
+		list.forEach(function(item) {
 
 			var str = item.name;
+			var found = false;
+
 			for (var i=0; i < words.length; i++) {
 				//checking that place name contains search word
-				if (str.toLowerCase().indexOf(words[i]) >= 0) {
-					list.push(item);
+				if  (words.length === 1 && words[i] === "") {
+					found = true;
+				} else {
+					if (str.toLowerCase().indexOf(words[i].toLowerCase()) >= 0) {
+						found = true;
+					} else {
+
+						//check that place type contains search word
+						for (var j = 0 ; j < item.types.length ; j++) {
+							if ( item.types[j].toLowerCase().indexOf(words[i].toLowerCase()) >= 0 )   {
+								found = true;
+								break;
+							}
+						}
+					}
 				}
+
+				if ( self.noPlacesToShow() ) {
+					( found ) ? self.noPlacesToShow(false) : self.noPlacesToShow(true);
+				}
+				item.showItem = found;
+				setMarkerVisibility(item, found);
+				self.nearbyPlaces.push(item);
 			}
+
 
 		});
 
 		self.nearbyPlaces(list);
+		//update markers visibility
+		setMarkers(nearbyMarkers);
+	};
+
+
+	/*
+		Set marker visibility
+	*/
+	function setMarkerVisibility(place, bool) {
+		nearbyMarkers.forEach(function(item){
+			if (place.name === item.name) {
+				item.showMarker = bool;
+			}
+		});
 	}
 	/*
 		Set marker on the map
 		Assign trigger event on click
-
 	*/
-
 	function setMarker(marker, place) {
 
 		marker.setMap(map);
@@ -680,7 +709,7 @@ var MapViewModel = function() {
 
 
     	google.maps.event.addListener(infoWindow,'closeclick',function(){
-    		if (self.chosenMarker() !== "" && self.chosenMarker().getAnimation() != null) {
+    		if (self.chosenMarker() !== "" && self.chosenMarker().getAnimation() !== null) {
     			self.chosenMarker().setAnimation(null);
     		}
     		self.chosenMarker("");
@@ -693,8 +722,12 @@ var MapViewModel = function() {
 
 	*/
 	function setMarkers() {
+		clearMarkers();
   		for (var i = 0; i < nearbyMarkers.length; i++) {
-    		nearbyMarkers[i].setMap(map);
+  			if (nearbyMarkers[i].showMarker) {
+  				nearbyMarkers[i].setMap(map);
+  			}
+
   		}
 	}
 
@@ -706,13 +739,11 @@ var MapViewModel = function() {
 		for (var i = 0; i < nearbyMarkers.length; i++) {
     		nearbyMarkers[i].setMap(null);
   		}
-  		nearbyMarkers = [];
+  		// nearbyMarkers = [];
 	}
-
 
 	/*
 		Additional Info Window (Show/Hide)
-
 	*/
 
 	function showHideAdditionalInfoWindow() {
@@ -758,13 +789,30 @@ var MapViewModel = function() {
 			trafficLayer.setMap(null);
 		}
 	}
+
+	/*
+		Checks whether there is nothing to show in nearbyPlacesFiltered
+	*/
+	function havePlacesToShow() {
+		var showItemsCount = 0;
+		self.nearbyPlaces().forEach(function(item) {
+			if (item.showItem) {
+				showItemsCount++;
+			}
+		});
+
+		if (showItemsCount > 0) {
+			self.noPlacesToShow(false);
+		} else {
+			self.noPlacesToShow(true);
+		}
+	}
 };
 
 /* =================================================
  *	Master View Model
  * =================================================*/
 var masterViewModel = function() {
-
 	this.AddInfoViewModel	= new AddInfoViewModel();
 	this.WikiViewModel 		= new WikiViewModel();
 	this.InstagramViewModel = new InstagramViewModel();

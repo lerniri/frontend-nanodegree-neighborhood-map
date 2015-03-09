@@ -101,15 +101,18 @@ h6 {
   font-size: .8em;
 }
 
-.icon-eye,
-.icon-instagram-filled,
-.icon-signal,
-.icon-help {
+#addinfo-wrapper .inner .menu ul li i {
   font-size: 3em;
+  color: #710101;
 }
 
 .reset-icon {
   font-size: 2em;
+}
+
+.topbar .searches i {
+  font-size: 1.6em;
+  color: white;
 }
 
 /************
@@ -129,6 +132,34 @@ html, body {
 .wrapper {
   width: 100%;
   height: 100%;
+}
+
+/* Entry */
+.entry {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(134, 0, 0, 0.95);
+  z-index: 100;
+}
+.entry .entry-search {
+  position: relative;
+  /* margin: auto; */
+  top: 45%;
+  left: 30%;
+  width: 40%;
+  text-align: center;
+}
+.entry input {
+  width: 100%;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  padding: 5px;
+}
+.entry h1 {
+  color: white;
+  margin-top: 10px;
 }
 
 /*	Map  */
@@ -162,6 +193,10 @@ html, body {
 .topbar .searches {
   width: 75%;
   float: left;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
 }
 .topbar .searches input {
   margin-bottom: 10px;
@@ -173,6 +208,9 @@ html, body {
 .topbar .searches input.places-search {
   width: 60%;
   max-width: 600px;
+}
+.topbar .searches i {
+  cursor: pointer;
 }
 .topbar .layers {
   float: right;
@@ -199,7 +237,7 @@ html, body {
   position: fixed;
   right: 5px;
   top: 50px;
-  min-width: 200px;
+  min-width: 350px;
 }
 #places-list-wrapper i[class^="icon-"] {
   color: #3a4d77;
@@ -219,7 +257,7 @@ html, body {
 #places-list-wrapper .content {
   overflow-x: hidden;
   overflow-y: auto;
-  height: 90vh;
+  height: 82vh;
   width: 100%;
 }
 #places-list-wrapper .content .loader {
@@ -228,19 +266,28 @@ html, body {
   background-color: rgba(255, 255, 255, 0.73);
   width: 100%;
   height: inherit;
-  padding-top: 80%;
 }
 #places-list-wrapper .content .loader i {
   font-size: 2em;
+  margin-top: 80%;
 }
 #places-list-wrapper .content .loader span {
   display: block;
   font-weight: bold;
   margin-top: 10px;
 }
+#places-list-wrapper .content .search-result {
+  text-align: center;
+  display: block;
+  height: 100px;
+  background-color: #fdfcfb;
+  padding: 40px;
+  box-sizing: border-box;
+  color: #b89898;
+}
 #places-list-wrapper .content .place-item {
   background-color: rgba(255, 255, 255, 0.89);
-  width: 300px;
+  max-width: 340px;
   padding: 20px;
   border-bottom: 1px solid #eae4e4;
   cursor: pointer;
@@ -308,7 +355,6 @@ html, body {
   width: 100%;
 }
 #addinfo-wrapper .inner {
-  width: 70%;
   margin: auto;
 }
 #addinfo-wrapper .inner .menu {
@@ -328,12 +374,8 @@ html, body {
 }
 #addinfo-wrapper .inner .menu ul li {
   display: block;
-  background: #fff;
-  width: 50px;
-  height: 50px;
-  border-radius: 100%;
-  padding-top: 5px;
   box-sizing: border-box;
+  text-align: center;
   cursor: pointer;
 }
 #addinfo-wrapper .addinfo-content {
@@ -341,7 +383,7 @@ html, body {
   height: 0;
   -webkit-transition: height .5s;
   transition: height .5s;
-  padding: 10px 30px;
+  padding: 10px;
   color: #333;
 }
 #addinfo-wrapper .addinfo-content.show-addinfo {
@@ -372,25 +414,33 @@ html, body {
 #addinfo-wrapper .addinfo-content .info {
   height: 80%;
   overflow-y: auto;
+  max-width: 700px;
+  margin: auto;
+  background-color: #860000;
+  color: white;
+  font-size: .9em;
+  padding: 10px 10px 0 30px;
 }
 #addinfo-wrapper .addinfo-content .info ol {
   list-style-type: decimal;
 }
 #addinfo-wrapper .addinfo-content .info h3 {
-  font-size: 2em;
-  text-align: center;
+  font-size: 1.3em;
+  text-align: right;
   text-transform: uppercase;
+  font-weight: 700;
+  color: #eabcbc;
 }
 #addinfo-wrapper .addinfo-content .info a {
   font-size: 1.2em;
   margin-bottom: 13px;
-  color: #333;
+  color: #D9A1A1;
   font-weight: 600;
   text-decoration: none;
 }
 #addinfo-wrapper .addinfo-content .info p {
   font-size: 1.2em;
-  padding: 20px;
+  padding: 3%;
 }
 
 @media screen and (max-width: 500px) {
@@ -400,4 +450,76 @@ html, body {
   .layers ul {
     margin-top: 5px;
   }
+}
+@media screen and (max-width: 341px) {
+  #addinfo-wrapper .addinfo-content.show-addinfo {
+    height: 65vh;
+  }
+}
+/*************************************
+ * generic styling for ALS elements
+ ************************************/
+.als-container {
+  position: relative;
+  width: 100%;
+  margin: 0px auto;
+  z-index: 0;
+}
+
+.als-viewport {
+  position: relative;
+  overflow: hidden;
+  margin: 0px auto;
+}
+
+.als-wrapper {
+  position: relative;
+  list-style: none;
+}
+
+.als-item {
+  position: relative;
+  display: block;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+}
+
+.als-prev, .als-next {
+  position: absolute;
+  cursor: pointer;
+  clear: both;
+}
+
+/*************************************
+ * specific styling for #demo1
+ ************************************/
+#demo1 {
+  margin: 40px auto;
+}
+
+#demo1 .als-item {
+  margin: 0px 5px;
+  padding: 4px 0px;
+  min-height: 120px;
+  min-width: 100px;
+  text-align: center;
+}
+
+#demo1 .als-item img {
+  display: block;
+  margin: 0 auto;
+  vertical-align: middle;
+}
+
+#demo1 .als-prev, #demo1 .als-next {
+  top: 40px;
+}
+
+#demo1 .als-prev {
+  left: 200px;
+}
+
+#demo1 .als-next {
+  right: 200px;
 }

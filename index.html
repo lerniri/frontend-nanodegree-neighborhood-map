@@ -29,10 +29,16 @@
 	<!-- Page main container -->
 	<div class="wrapper">
 		<div data-bind="with: MapViewModel">
+			<div class="entry" data-bind="visible: myNeighborhood() == ''">
+				<div class="entry-search">
+					<input data-bind="value: myNeighborhood" />
+					<h1>Enter Your Neighborhood</h1>
+
+				</div>
+
+			</div>
 			<!-- Google Map container -->
 			<div id="map"></div>
-
-
 			<!-- Top Bar Navigation and Search-->
 			<div class="topbar cf">
 
@@ -40,6 +46,7 @@
 
 					<input id="neighborhood-search" class="neighborhood-search" data-bind="value: myNeighborhood" type="search" placeholder="Type Neighborhood">
 					<input class="places-search" type="search" data-bind="value:keywordSearch" placeholder="Type to filter places">
+					<i class="icon-search" data-bind="click: filterPlaces"></i>
 				</div>
 				<div class="layers">
 					<ul>
@@ -56,7 +63,6 @@
 
 				<div class="header">
 					<h3>Nearby Places</h3>
-
 				</div>
 				<!-- Places search results list content-->
 				<div class="content">
@@ -67,10 +73,9 @@
 						<span>So many places to see around! <br> Please, be patient!</span>
 					</div>
 
-					<span class="search_result" data-bind="visible: nothingFound">Nothing found :(</span>
-
 					<ul data-bind="foreach: nearbyPlaces">
 
+						<!-- ko if: showItem -->
 						<li class="place-item" data-bind="click: $parent.panMapToClickedPlace">
 							<!-- <div class="place-item-title"> -->
 							<img class="place-item-logo" data-bind="attr: {src: icon}">
@@ -97,8 +102,10 @@
 								</li>
 							</ul>
 						</li>
-
+						<!-- /ko -->
 					</ul>
+
+					<span class="search-result" data-bind="visible: noPlacesToShow || nearbyPlaces().length <= 0">Sorry, nothing found.</span>
 
 				</div> <!-- Places search results list content END -->
 			</div>
@@ -107,13 +114,12 @@
 		<!-- Pics / News / Info View at the bottom -->
 		<div id="addinfo-wrapper">
 			<div class="inner">
-
-				<div data-bind="with:AddInfoViewModel">
+				<div class="addinfo-top" data-bind="with:AddInfoViewModel">
 					<div class="menu">
 						<ul>
 							<!-- <li data-bind="click: toggleNews"><i class="icon-signal" title="Local News"></i></li> -->
-							<li data-bind="click: toggleWiki"><i class="icon-help" title="Info on the neighborhood"></i></li>
-							<li data-bind="click: toggleInstagram"><i class="icon-instagram-filled" title="Instagram Pics"></i></li>
+							<li data-bind="click: toggleWiki"><i class="icon-wikipedia" title="Info on the neighborhood"></i></li>
+							<!-- <li data-bind="click: toggleInstagram"><i class="icon-instagram" title="Instagram Pics"></i></li> -->
 						</ul>
 					</div>
 
@@ -162,6 +168,7 @@
 	<!-- Google API Library -->
     <!-- script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script -->
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
@@ -170,7 +177,7 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.js"></script> <!-- 16 KB -->
 
 	<!-- Knockout CDN -->
-	<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.0.0.js"></script>
+	<script src="js/libs/knockout-3.2.0.js"></script>
 	<!-- Application code -->
 	<script type="text/javascript" src="js/app.js"></script>
   </body>
