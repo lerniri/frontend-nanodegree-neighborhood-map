@@ -1,48 +1,68 @@
 var shouter = new ko.subscribable();
 
 
+/***************************************************************
+
+	AddInfoViewModel is handling addinfo-wrapper functionality
+
+****************************************************************/
 var AddInfoViewModel = function() {
 
-	var self = this;
+	var self 		= this;
+	var $wikiBtn	= $('#wikibtn');	// DOM element holding wiki button
+	var $flickrBtn	= $('#flickrbtn');	// DOM element holding flickr button
 
-	self.placeInfoEnabled		= ko.observable(false);			// boolean value, indicating whether placeInfo view is currently enabled or disabled
-	self.instagramEnabled   	= ko.observable(false);			// boolean value, indicating whether instagram view is currently enabled or disabled
-	self.addInfoLoading 		= ko.observable(false);
-	self.showAddInfoWindow      = ko.observable(false);
+	self.wikiEnabled			= ko.observable(false);			// boolean value, indicating whether wiki view is currently active or not
+	self.flickrEnabled   		= ko.observable(false);			// boolean value, indicating whether instagram view is currently active or not
+	self.addInfoLoading 		= ko.observable(false);			// boolean value, indicating whether additional info panel is currently loading its content
+	self.showAddInfoWindow      = ko.observable(false);			// boolean value, indicating whether additional info window should be shown or not
 
-	self.placeInfoEnabled.subscribe(function(newValue) {
-		shouter.notifySubscribers(newValue, "placeInfoEnabled");
+	/*	register notifier whenever wikiEnabled value is updated
+	*/
+	self.wikiEnabled.subscribe(function(newValue) {
+		shouter.notifySubscribers(newValue, "wikiEnabled");
 	});
 
-	self.instagramEnabled.subscribe(function(newValue) {
-		shouter.notifySubscribers(newValue, "instagramEnabled");
+
+	/*	register notifier whenever flickrEnabled value is updated
+	*/
+	self.flickrEnabled.subscribe(function(newValue) {
+		shouter.notifySubscribers(newValue, "flickrEnabled");
 	});
 
+
+	/* @TODO: add description
+	*/
 	self.toggleWiki = function() {
-		self.placeInfoEnabled( !self.placeInfoEnabled() );
-
-		// hide instagram and news
-		if ( self.placeInfoEnabled() ) {
-			self.instagramEnabled(false);
+		self.wikiEnabled( !self.wikiEnabled() );
+		if ( self.wikiEnabled() ) {
+			$wikiBtn.addClass('selected');
+			self.flickrEnabled(false);
+		} else {
+			$wikiBtn.removeClass('selected');
 		}
 	};
 
 
-	self.toggleInstagram = function() {
-
-		self.instagramEnabled( !self.instagramEnabled() );
-		// // hide wiki and news
-		if ( self.instagramEnabled() ) {
-			self.placeInfoEnabled(false);
+	/* @TODO: add description
+	*/
+	self.toggleFlickr = function() {
+		self.flickrEnabled( !self.flickrEnabled() );
+		if ( self.flickrEnabled() ) {
+			self.wikiEnabled(false);
 		}
 	};
 
+
+	/*
+		show/hide addinfo-content by adding/removing 'show-addinfo' class, when wiki button is clicked.
+	*/
 	self.showAddInfoWindow	= ko.computed(function() {
 		var $addinfo = $(".addinfo-content");
-		if ( self.instagramEnabled() || self.placeInfoEnabled() ) {
+		if ( self.flickrEnabled() || self.wikiEnabled() ) {
 			$addinfo.addClass('show-addinfo');
 			return true;
-		} else if ( !self.instagramEnabled() && !self.placeInfoEnabled()) {
+		} else if ( !self.flickrEnabled() && !self.wikiEnabled()) {
 			$addinfo.removeClass('show-addinfo');
 			return false;
 		}
@@ -51,62 +71,81 @@ var AddInfoViewModel = function() {
 };
 
 
-/* ============================================
- *  			Wikipedia View Model
- /* ============================================ */
+/***************************************************************
+
+	WikiViewModel is handling wiki content
+
+****************************************************************/
 
 var WikiViewModel = function() {
 
 	var self = this;
 
-	var endpoint = "http://en.wikipedia.org/w/api.php?";
-	var wikiLink = "http://en.wikipedia.org/wiki/" ;
+	var endpoint = "http://ens.wikipedia.org/w/api.php?";  	//wikipedia api endpoint
+	var wikiLink = "http://en.wikipedia.org/wiki/" ; 		//wikipedia pages link
 
-	self.placeInfoPages 		= ko.observableArray([]);
-    self.myNeighborhood 		= ko.observable("");
-    self.placeInfoEnabled  		= ko.observable(false);
+	/************************************
+				OBSERVABLES
+	*************************************/
 
+	self.wikiPages 				= ko.observableArray([]); 	// array with found wiki pages
+    self.myNeighborhood 		= ko.observable("");		// string holding neighborhood
+    self.wikiEnabled  			= ko.observable(false); 	// boolean value, indicating whether wiki view is currently enabled or disabled
+    self.wikiErrorMsg			= ko.observable("");		// string holding wiki api last error - normally expected to be ""
+
+
+    // register listener to wikiEnabled value
     shouter.subscribe(function(newValue){
-    	self.placeInfoEnabled(newValue);
-    }, self, "placeInfoEnabled");
+    	self.wikiEnabled(newValue);
+    }, self, "wikiEnabled");
 
+    // register listener to myNeighborhood value
     shouter.subscribe(function(newValue) {
         self.myNeighborhood(newValue);
-        self.placeInfoPages([]);
+        self.wikiPages([]);
     }, self, "neighborhood");
 
 
-    self.placeInfoEnabledComputed = ko.computed(function(){
-    	if (self.placeInfoEnabled()) {
+    /************************************
+			COMPUTED OBSERVABLES
+	*************************************/
+
+    // run wiki pages search when wiki view is enabled
+    self.wikiEnabledComputed = ko.computed(function(){
+    	if (self.wikiEnabled()) {
     		searchWikiPages(self.myNeighborhood());
     	}
     });
 
+    /*
+    	function performs text search of top 5 wiki pages, containing myNeighborhood value in the content.
+    */
 	function searchWikiPages(searchStr) {
 
-		if ( !self.placeInfoEnabled() || self.placeInfoPages().length > 0 ) {
+		if ( !self.wikiEnabled() || self.wikiPages().length > 0 ) {
 			return;
 		}
 
 		var url = endpoint+"format=json&action=query&list=search&srsearch="+searchStr+"&srlimit=5&callback=?";
+
+		var wikiRequestTimeout = setTimeout(function() {
+			self.wikiErrorMsg("Failed to get wikipedia resources");
+		}, 3000);
 
 		$.ajax({
 	    	url: url,
 	    	dataType: 'jsonp',
 	    	success: function(data) {
 	    		for (var i = 0; i < data.query.search.length; i++) {
-		       		self.placeInfoPages.push({
+		       		self.wikiPages.push({
 		        		title 	: data.query.search[i].title,
 		        		link 	: constructWikiLink(data.query.search[i].title),
 		        		snippet	: data.query.search[i].snippet
 		        	});
 				}
 
-	    	},
-	    	error: function() {
-	    		//TODO: implement error handling
+				clearTimeout(wikiRequestTimeout);
 	    	}
-
 		});
 	}
 
@@ -125,28 +164,37 @@ var FlickrViewModel = function() {
 	var endpoint = 'https://api.flickr.com/services/rest/';
 	var api_key  = 'ae6f6113a6236df9a8fe6eb32616175d';
 
-	self.instagramEnabled		= ko.observable(false);
+	self.flickrEnabled			= ko.observable(false);
 	self.neighborhoodImages	 	= ko.observableArray([]);
 	self.neighborhoodLoc		= ko.observable();
 	self.myNeighborhood			= ko.observable();
+	self.flickrErrorMsg			= ko.observable("");
 
-
+	/* register listener for flickEnabled value
+	*/
 	shouter.subscribe(function(newValue){
-    	self.instagramEnabled(newValue);
-    }, self, "instagramEnabled");
+    	self.flickrEnabled(newValue);
+    }, self, "flickrEnabled");
 
+    /* register listener for neighborhoodLoc value
+	*/
     shouter.subscribe(function(newValue){
     	self.neighborhoodLoc(newValue);
     }, self, "neighborhoodLoc");
 
+    /* register listener for myNeighborhood value
+	*/
     shouter.subscribe(function(newValue){
     	self.myNeighborhood(newValue);
     	self.neighborhoodImages([]);
     }, self, "neighborhood");
 
+
+	/* @TODO: add description
+	*/
 	self.computedLoadInstagram = ko.computed(function(){
 		// quit function in case instagram  window is closing
-		if ( !self.instagramEnabled() || self.neighborhoodImages().length > 0 ) {
+		if ( !self.flickrEnabled() || self.neighborhoodImages().length > 0 ) {
 			//TODO: think of utilizing local storage to save loaded pics
 			return;
 		}
@@ -156,46 +204,46 @@ var FlickrViewModel = function() {
 	});
 
 
+	/* @TODO: add description
+	*/
 	function loadImages() {
-		var min_upload_date  =  Date.now() - 60 * 60 * 24 * 30, // (30 days in ms)
-			privacy_filter  	= 1, 	//public photos
-			content_type  		= 1, 	//photos only
-			lat 				= self.neighborhoodLoc().lat(),
-			lng 				= self.neighborhoodLoc().lng(),
-			text 				= self.myNeighborhood(),
-			per_page 			= 20;
+		var min_upload_date  	=  Date.now() - 60 * 60 * 24 * 30, 	// (30 days in ms)
+			privacy_filter  	= 1, 								// public photos
+			content_type  		= 1, 								// photos only
+			lat 				= self.neighborhoodLoc().lat(),		// lat value of current neighborhood
+			lng 				= self.neighborhoodLoc().lng(), 	// lng value of current neighborhood
+			text 				= self.myNeighborhood(),			// string with current neighborhood
+			per_page 			= 20;								// number of images per page
+
 
 		var url = endpoint+"?method=flickr.photos.search&api_key="+api_key+"&lat="+lat+"&lng="
 					+ lng+"&text="+text+"&privacy_filter="
 					+ privacy_filter+"&content_type="+content_type+"&per_page="+per_page;
 
 
+		var FlickrRequestTimeout = setTimeout(function(){
+			self.flickrErrorMsg("Failed to load Flickr images");
+		}, 5000);
 
 		$.ajax({
 			url: url,
 			data: "format=json",
 			jsonp: "jsoncallback",
 			dataType: "jsonp",
-			success: function(data)
+			success: function(data) {
+	   			for (var i = 0 ; i < data.photos.photo.length ; i++) {
 
-				{
-		   			for (var i = 0 ; i < data.photos.photo.length ; i++) {
-
-		   				self.neighborhoodImages.push({
-		   					"title"		: data.photos.photo[i].title,
-		   					"owner"		: data.photos.photo[i].owner,
-		   					"pic_thumb"	: constructImageURL(data.photos.photo[i], 'z'),
-		   					"pic"		: constructImageURL(data.photos.photo[i], 'b')
-		   				});
-		   			}
-				},
-    		error: function()
-        		{
-            	//TODO: add error handling
-        	}
+	   				self.neighborhoodImages.push({
+	   					"title"		: data.photos.photo[i].title,
+	   					"owner"		: data.photos.photo[i].owner,
+	   					"pic_thumb"	: constructImageURL(data.photos.photo[i], 'z'),
+	   					"pic"		: constructImageURL(data.photos.photo[i], 'b')
+	   				});
+	   			}
+	   				clearTimeout(FlickrRequestTimeout);
+				}
+			}
 		});
-
-		console.log(self.neighborhoodImages());
 	}
 
 
@@ -214,35 +262,8 @@ var FlickrViewModel = function() {
 		o	original image, either a jpg, gif or png, depending on source format
 	*/
 	function constructImageURL(photoObj, size) {
-
 		return "https://farm"+photoObj.farm+".staticflickr.com/"+photoObj.server+"/"+photoObj.id+"_"+photoObj.secret+"_"+size+".jpg";
 	}
-};
-
-/* ============================================
- *  			Instagram View Model
-/* ============================================ */
-var InstagramViewModel = function() {
-
-	var self = this;
-
-	var endpoint 		= "https://api.instagram.com/v1/";
-	var access_token 	= '36229642.37a7c6f.21f4b44989b94872b6116fe8eeededf8';
-
-
-	self.instagramEnabled		= ko.observable(false);
-	self.neighborhoodImages	 	= ko.observableArray([]);
-	self.neighborhoodLoc		= ko.observable();
-
-
-	shouter.subscribe(function(newValue) {
-    	self.instagramEnabled(newValue);
-    }, self, "instagramEnabled");
-
-	shouter.subscribe(function(newValue) {
-		self.neighborhoodLoc(newValue);
-	}, self, "neighborhoodLoc");
-
 };
 
 
@@ -277,55 +298,65 @@ var MapViewModel = function() {
 		'zoo'
 	];
 
-	// TODO: make it current user location
-	var defaultNeighborhood = "Tushino";	// default neighborhood
-	var nearbyMarkers	= [];				// array with nearby places markers
+	var nearbyMarkers = [];	// array with nearby places markers
 
-	var GMAPS_PLACESSERVICE_STATUS_OK = google.maps.places.PlacesServiceStatus.OK;
-	var GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT = google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT;
+	var GMAPS_PLACESSERVICE_STATUS_OK = google.maps.places.PlacesServiceStatus.OK; 								//google places service return status: "OK"
+	var GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT = google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT;	//google places service return status: "OVER_QUERY_LIMIT"
 
 
 	/* 	OBSERVABLES  */
 
-	self.myNeighborhood 		= ko.observable(""); 	// current neighborhood
-	self.neighborhoodLoc		= ko.observable();
-	self.nearbyPlaces 			= ko.observableArray([]);				    // list of nearby places
-	self.noPlacesToShow			= ko.observable(true);
+	self.myNeighborhood 		= ko.observable(""); 				// current neighborhood
+	self.neighborhoodLoc		= ko.observable();					// current neighborhood location (@TODO: format)
+	self.nearbyPlaces 			= ko.observableArray([]);			// list of nearby places
+	self.noPlacesToShow			= ko.observable(true);				// boolean, that indicates whether there are or no nearby places to show
 
-	self.keywordSearch			= ko.observable("");						// search keyword
-	self.chosenMarker 			= ko.observable("");
+	self.keywordSearch			= ko.observable("");				// search keyword
+	self.chosenMarker 			= ko.observable("");				// holds marker , which is currently chosen by user
 
-	self.bikeLayerEnabled 		= ko.observable(false);					// boolean value, indicating whether bike layer is currently enabled or disabled
-	self.trafficLayerEnabled 	= ko.observable(false);					// boolean value, indicating whether traffic layer is currently enabled or disabled
-	self.transitLayerEnabled 	= ko.observable(false);					// boolean value, indicating whether transit layer is currently enabled or disabled
+	self.bikeLayerEnabled 		= ko.observable(false);				// boolean value, indicating whether bike layer is currently enabled or disabled
+	self.trafficLayerEnabled 	= ko.observable(false);				// boolean value, indicating whether traffic layer is currently enabled or disabled
+	self.transitLayerEnabled 	= ko.observable(false);				// boolean value, indicating whether transit layer is currently enabled or disabled
 
-	self.showAddInfoWindow 		= ko.observable(false);
-	self.loading 				= ko.observable(false);
+	self.showAddInfoWindow 		= ko.observable(false);				// boolean value, indicating whether addinfo-wrapper is currently shown or hidden
+	self.loading 				= ko.observable(false);				// boolean value, indicating whether content is currently loading or not.
+	self.errorMsg				= ko.observable("");
 
 
+	/* register notification about myNeighborhood value changes
+	*/
 	self.myNeighborhood.subscribe(function(newValue) {
 		shouter.notifySubscribers(newValue, "neighborhood");
 	});
 
+
+
+	/* toggle bike layer upon bike icon click
+	*/
 	self.toggleBikeLayer = function() {
 		self.bikeLayerEnabled( !self.bikeLayerEnabled() );
 		showHideLayers();
 	};
 
+	/* toggle traffic layer upon bike icon click
+	*/
 	self.toggleTrafficLayer = function() {
 		self.trafficLayerEnabled( !self.trafficLayerEnabled() );
 		showHideLayers();
 	};
 
+	/* toggle transit layer upon bike icon click
+	*/
 	self.toggleTransitLayer = function() {
 		self.transitLayerEnabled( !self.transitLayerEnabled() );
 		showHideLayers();
 	};
 
-	// UI Events
-	self.panMapToClickedPlace = function() {
 
-		for (i=0; i<nearbyMarkers.length; i++) {
+	/* @TODO: add description
+	*/
+	self.panMapToClickedPlace = function() {
+		for (var i=0; i < nearbyMarkers.length; i++) {
 			if (nearbyMarkers[i].name === this.name) {
 				//pan map to marker
 				map.panTo(nearbyMarkers[i].position);
@@ -334,37 +365,26 @@ var MapViewModel = function() {
 		}
 	};
 
-
-	self.resetSearchFilter = function() {
-		self.keywordSearch("");
-		requestNeighborhood();
-	};
-
-
-	/*
-		initialize map
-	*/
-
 	initMap();
 
-
+	/* Close addinfo window whenever user clicks on outside area
+		@TODO: looks like this one doesn't work
+	*/
 	$(document).click(function(event){
 		if ( $(event.target).closest('div.addinfo-content').length > 1 ) {
 			self.showAddInfoWindow(false);
 		}
-
 	});
 
 
-
-	// COMPUTED OBSERVABLES
+	/************************************************************************
+								COMPUTED OBSERVABLES
+	*************************************************************************/
 	/*
 		load neighborhood on the map depending on the chosen neighborhood
 	*/
-
 	self.computedNeighborhood = ko.computed(function() {
 		if (self.myNeighborhood() !== '') {
-			// WikiViewModel.placeInfoPages([]);
 			// InstagramViewModel.neighborhoodImages([]);
 			requestNeighborhood();
 
@@ -372,9 +392,10 @@ var MapViewModel = function() {
 
 	});
 
+	/* @TODO: add description
+	*/
 	self.markerAnimationIsRunning = ko.computed(function() {
 		if (self.chosenMarker() !== "") {
-
 			//stop animation of others
 			nearbyMarkers.forEach(function(item) {
 				item.setAnimation(null);
@@ -388,7 +409,6 @@ var MapViewModel = function() {
   				return true;
   			}
 		}
-
 	});
 
 	// initialize map
@@ -409,38 +429,15 @@ var MapViewModel = function() {
   		infoWindow		= new google.maps.InfoWindow();
   		placesService 	= new google.maps.places.PlacesService(map);
 
-  		/*
-  			Init  Layers
-  		*/
-
-  		// @TODO find user position and assign it to current neighborhood.
-
-  		var loc = {};
-    	var geocoder = new google.maps.Geocoder();
-
-    	if(google.loader.ClientLocation) {
-
-        	loc.lat = google.loader.ClientLocation.latitude;
-        	loc.lng = google.loader.ClientLocation.longitude;
-
-        	var latlng = new google.maps.LatLng(loc.lat, loc.lng);
-
-    	}
-
-  		bikeLayer 	 = new google.maps.BicyclingLayer();
-  		trafficLayer = new google.maps.TrafficLayer();
-  		transitLayer = new google.maps.TransitLayer();
-
-  		/*
-  			Find user position
-  		*/
+  		bikeLayer 	 	= new google.maps.BicyclingLayer();
+  		trafficLayer 	= new google.maps.TrafficLayer();
+  		transitLayer 	= new google.maps.TransitLayer();
 
   		google.maps.event.addDomListener(window, "resize", function() {
      		var center = map.getCenter();
      		google.maps.event.trigger(map, "resize");
      		map.setCenter(center);
     	});
-
 	}
 
 
@@ -479,9 +476,7 @@ var MapViewModel = function() {
 			requestNearbyPlaces();
 
 		} else {
-
-			// error handler
-			console.log("Something is wrong");
+			self.errorMsg("Failed to load neighborhood");
 		}
 	}
 
@@ -495,7 +490,7 @@ var MapViewModel = function() {
 		*/
 		var request = {
 			location: map.getCenter(),
-			radius: 1000,
+			radius: 2000,
 			types:placesTypes
 		};
 
@@ -527,21 +522,16 @@ var MapViewModel = function() {
 			//Load places list
 
 			self.nearbyPlaces([]);
-			//nearbyPlaces = [];
+			clearMarkers();
 
-			// clearMarkers();
-
-			// var service = new google.maps.places.PlacesService(map);
 			// recursive function (a work around for request limit)
 			var process_result = function (result, i) {
-
 
 				self.loading(true);
 
 				if (i >= result.length){
 					self.loading(false);
 					return;
-
 				}
 
 				var request = {
@@ -549,81 +539,69 @@ var MapViewModel = function() {
 			    };
 			      
 			 	placesService.getDetails(request, function(place, status) {
-				if (status === GMAPS_PLACESSERVICE_STATUS_OK)   {
 
+					if (status === GMAPS_PLACESSERVICE_STATUS_OK)   {
 
-					//create mearby place
-					self.nearbyPlaces.push({
-						name		: place.name,
-						icon		: place.icon,
-						address		: place.formatted_address,
-						phone 		: place.formatted_phone_number,
-						types		: place.types,
-						rating		: place.user_ratings_total,
-						website		: place.website,
-						reviews		: place.reviews,
-						photos		: place.photos,
-						showItem	: true
+						//create mearby place
+						self.nearbyPlaces.push({
+							name		: place.name,
+							icon		: place.icon,
+							address		: place.formatted_address,
+							phone 		: place.formatted_phone_number,
+							types		: place.types,
+							rating		: place.user_ratings_total,
+							website		: place.website,
+							reviews		: place.reviews,
+							photos		: place.photos,
+							showItem	: true
 
-					});
+						});
 
+						nearbyMarkers.push(new google.maps.Marker({
+							position	: place.geometry.location,
+							name 		: place.name,
+							address 	: place.formatted_address,
+							phone 		: place.formatted_phone_number,
+							showMarker  : true
 
-					nearbyMarkers.push(new google.maps.Marker({
-						position	: place.geometry.location,
-						name 		: place.name,
-						address 	: place.formatted_address,
-						phone 		: place.formatted_phone_number,
-						showMarker  : true
+							//add more options used by info window
+						}));
 
-						//add more options used by info window
-					}));
+						setMarker(nearbyMarkers[i], place);
+						// increment 'i'
+						process_result(result, i+1);
 
-					setMarker(nearbyMarkers[i], place);
+						self.noPlacesToShow(false);
 
-					// increment 'i'
-					process_result(result, i+1);
-
-					//
-					self.noPlacesToShow(false);
-
-				} else if (status === GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT) {
-
+					} else if (status === GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT) {
 						// wait 200ms, then try again with same 'i'
 						window.setTimeout(function (){
 							process_result(result, i);
 						}, 200);
-			 	}
-			}); // process_result() function end
+				 	}
+				});
 
-		};
+			};
 
 			process_result(results, 0);
 
-		} else {
+		} else { // nearbyPlaces request returned in errorneous state
 
-			// TODO: add message for the user
-			// Do that in self.nearbyPlaces ???
-			console.log("failed to load places");
-
+			self.errorMsg("Failed to load neighborhood places");
 		}
-
-
 
 	} // loadNearbyPlaces() END
 
 
-	/*
-		Search places callback function - checks search status
-		and runs loadNearbyPlacesOnMap function if status is OK
-
-		TODO: unify results search callback function
-	*/
-
-	function requestNearbyPlacesCallback(results, status) {
-		if ( status === GMAPS_PLACESSERVICE_STATUS_OK ) {
-			loadNearbyPlacesOnMap(results);
-		}
-	}
+	// /*
+	// 	Search places callback function - checks search status
+	// 	and runs loadNearbyPlacesOnMap function if status is OK
+	// */
+	// function requestNearbyPlacesCallback(results, status) {
+	// 	if ( status === GMAPS_PLACESSERVICE_STATUS_OK ) {
+	// 		loadNearbyPlacesOnMap(results);
+	// 	}
+	// }
 
 
 	/*
@@ -739,7 +717,7 @@ var MapViewModel = function() {
 		for (var i = 0; i < nearbyMarkers.length; i++) {
     		nearbyMarkers[i].setMap(null);
   		}
-  		// nearbyMarkers = [];
+  		nearbyMarkers = [];
 	}
 
 	/*
@@ -748,9 +726,9 @@ var MapViewModel = function() {
 
 	function showHideAdditionalInfoWindow() {
 		var $addinfo = $('.addinfo-content');
-		if ( self.instagramEnabled() || self.placeInfoEnabled() || self.newsFeedEnabled() ) {
+		if ( self.flickrEnabled() || self.wikiEnabled() || self.newsFeedEnabled() ) {
 			$addinfo.addClass('show-addinfo');
-		} else if  ( !self.instagramEnabled() && !self.placeInfoEnabled() && !self.newsFeedEnabled() ) {
+		} else if  ( !self.flickrEnabled() && !self.wikiEnabled() && !self.newsFeedEnabled() ) {
 			$addinfo.removeClass('show-addinfo');
 		}
 	}
@@ -815,7 +793,6 @@ var MapViewModel = function() {
 var masterViewModel = function() {
 	this.AddInfoViewModel	= new AddInfoViewModel();
 	this.WikiViewModel 		= new WikiViewModel();
-	this.InstagramViewModel = new InstagramViewModel();
 	this.FlickrViewModel  	= new FlickrViewModel();
 	this.MapViewModel		= new MapViewModel();
 };

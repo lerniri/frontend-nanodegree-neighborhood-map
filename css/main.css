@@ -239,9 +239,6 @@ html, body {
   top: 50px;
   min-width: 350px;
 }
-#places-list-wrapper i[class^="icon-"] {
-  color: #3a4d77;
-}
 #places-list-wrapper h5 {
   padding: 10px 10px 10px 0;
   border-radius: 8px;
@@ -266,10 +263,12 @@ html, body {
   background-color: rgba(255, 255, 255, 0.73);
   width: 100%;
   height: inherit;
+  color: #860000;
 }
 #places-list-wrapper .content .loader i {
   font-size: 2em;
   margin-top: 80%;
+  color: #860000;
 }
 #places-list-wrapper .content .loader span {
   display: block;
@@ -284,6 +283,15 @@ html, body {
   padding: 40px;
   box-sizing: border-box;
   color: #b89898;
+}
+#places-list-wrapper .content .error-msg {
+  text-align: center;
+  display: block;
+  height: 100px;
+  background-color: #fdfcfb;
+  padding: 40px;
+  box-sizing: border-box;
+  color: #FF0000;
 }
 #places-list-wrapper .content .place-item {
   background-color: rgba(255, 255, 255, 0.89);
@@ -378,6 +386,9 @@ html, body {
   text-align: center;
   cursor: pointer;
 }
+#addinfo-wrapper .inner .menu ul li.selected {
+  font-size: 1.3em;
+}
 #addinfo-wrapper .addinfo-content {
   background: transparent;
   height: 0;
@@ -442,6 +453,12 @@ html, body {
   font-size: 1.2em;
   padding: 3%;
 }
+#addinfo-wrapper .addinfo-content .info .wiki-error-msg {
+  display: block;
+  height: 100px;
+  text-align: center;
+  font-size: 1.2em;
+}
 
 @media screen and (max-width: 500px) {
   .layers {
@@ -455,71 +472,4 @@ html, body {
   #addinfo-wrapper .addinfo-content.show-addinfo {
     height: 65vh;
   }
-}
-/*************************************
- * generic styling for ALS elements
- ************************************/
-.als-container {
-  position: relative;
-  width: 100%;
-  margin: 0px auto;
-  z-index: 0;
-}
-
-.als-viewport {
-  position: relative;
-  overflow: hidden;
-  margin: 0px auto;
-}
-
-.als-wrapper {
-  position: relative;
-  list-style: none;
-}
-
-.als-item {
-  position: relative;
-  display: block;
-  text-align: center;
-  cursor: pointer;
-  float: left;
-}
-
-.als-prev, .als-next {
-  position: absolute;
-  cursor: pointer;
-  clear: both;
-}
-
-/*************************************
- * specific styling for #demo1
- ************************************/
-#demo1 {
-  margin: 40px auto;
-}
-
-#demo1 .als-item {
-  margin: 0px 5px;
-  padding: 4px 0px;
-  min-height: 120px;
-  min-width: 100px;
-  text-align: center;
-}
-
-#demo1 .als-item img {
-  display: block;
-  margin: 0 auto;
-  vertical-align: middle;
-}
-
-#demo1 .als-prev, #demo1 .als-next {
-  top: 40px;
-}
-
-#demo1 .als-prev {
-  left: 200px;
-}
-
-#demo1 .als-next {
-  right: 200px;
 }

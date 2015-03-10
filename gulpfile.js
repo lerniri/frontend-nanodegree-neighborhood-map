@@ -35,8 +35,8 @@ gulp.task('scripts', function(){
 			.pipe(uglify())
 			.pipe(gulp.dest('_build/js'))
 
-	console.log('Finished scripts task....',Date().toString());
-})
+	console.log('Finished scripts task....', Date().toString());
+});
 
 
 /*

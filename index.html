@@ -43,7 +43,6 @@
 			<div class="topbar cf">
 
 				<div class="searches">
-
 					<input id="neighborhood-search" class="neighborhood-search" data-bind="value: myNeighborhood" type="search" placeholder="Type Neighborhood">
 					<input class="places-search" type="search" data-bind="value:keywordSearch" placeholder="Type to filter places">
 					<i class="icon-search" data-bind="click: filterPlaces"></i>
@@ -106,6 +105,7 @@
 					</ul>
 
 					<span class="search-result" data-bind="visible: noPlacesToShow || nearbyPlaces().length <= 0">Sorry, nothing found.</span>
+					<span class="error-msg" data-bind="visible: errorMsg() !== '', text: errorMsg"></span>
 
 				</div> <!-- Places search results list content END -->
 			</div>
@@ -118,8 +118,8 @@
 					<div class="menu">
 						<ul>
 							<!-- <li data-bind="click: toggleNews"><i class="icon-signal" title="Local News"></i></li> -->
-							<li data-bind="click: toggleWiki"><i class="icon-wikipedia" title="Info on the neighborhood"></i></li>
-							<!-- <li data-bind="click: toggleInstagram"><i class="icon-instagram" title="Instagram Pics"></i></li> -->
+							<li id="wikibtn" data-bind="click: toggleWiki"><i class="icon-wikipedia" title="Info on the neighborhood"></i></li>
+							<!-- <li id="flickrbrn" data-bind="click: toggleFlickr"><i class="icon-flickr-circled" title="Flickr Pics"></i></li> -->
 						</ul>
 					</div>
 
@@ -130,35 +130,34 @@
 				</div> <!-- AddViewInfoModel -->
 
 				<div class="addinfo-content">
-					<!-- Instagram Photos Container -->
-					<!-- <div data-bind="with: FlickrViewModel">
-						<div class="instagram" data-bind="visible: instagramEnabled">
+					<!-- Flickr Photos Container -->
+					<div data-bind="with: FlickrViewModel">
+						<div class="instagram" data-bind="visible: flickrEnabled">
 							<ul class="img-gallery" data-bind="foreach: neighborhoodImages">
 								<li><img data-bind="attr: {src: $data.pic_thumb, href: $data.pic}" >
 								</li>
 							</ul>
 						</div>
-					</div>  -->
+					</div>
 
 					<!-- InstagramViewModel -->
 
-					<!-- Neighborhood info container -->
+					<!-- Wiki info container -->
 					<div data-bind="with:WikiViewModel">
 						<!-- WikiViewModel Context-->
-						<div class="info" data-bind="visible: placeInfoEnabled">
+						<div class="info" data-bind="visible: wikiEnabled">
 							<h3>Wiki pages</h3>
-							<ol data-bind="foreach: placeInfoPages">
+							<ol data-bind="foreach: wikiPages">
 								<li>
 									<a data-bind="attr: {href: $data.link}, text: $data.title" target="_blank" class="title"></a>
 									<p data-bind="html: $data.snippet" class="snippet"></p>
 								</li>
 							</ol>
+							<span class="wiki-error-msg" data-bind="visible: wikiErrorMsg() !=='', text: wikiErrorMsg"></span>
+
 						</div>
 						<!-- WikiViewModel Context -->
 					</div>
-
-					<!-- News  around container -->
-					<!-- <div class="news" data-bind="visible: newsFeedEnabled"></div> -->
 
 				</div>
 			</div>
@@ -168,17 +167,12 @@
 	<!-- Google API Library -->
     <!-- script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script -->
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
-	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-
-    <!-- fotorama.css & fotorama.js. -->
-
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.js"></script> <!-- 16 KB -->
 
 	<!-- Knockout CDN -->
 	<script src="js/libs/knockout-3.2.0.js"></script>
 	<!-- Application code -->
-	<script type="text/javascript" src="js/app.js"></script>
+	<script type="text/javascript" src="_build/js/app.min.js"></script>
   </body>
 </html>

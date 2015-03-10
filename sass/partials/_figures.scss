@@ -150,9 +150,9 @@ html, body {
 	top:50px;
 	min-width:350px;
 
-	i[class^="icon-"] {
-		color: $icons-main-color;
-	}
+	// i[class^="icon-"] {
+	// 	color: $icons-main-color;
+	// }
 
 	h5 {
 		padding:10px 10px 10px 0;
@@ -182,16 +182,20 @@ html, body {
   			background-color: rgba(255, 255, 255, 0.73);
   			width: 100%;
   			height: inherit;
+  			color: #860000;
 
 			i {
 				font-size: 2em;
 				margin-top: 80%;
+				color: #860000;
+
 			}
 
   			span {
   				display: block;
   				font-weight: bold;
   				margin-top: 10px;
+
   			}
   		}
 
@@ -203,6 +207,16 @@ html, body {
   			padding: 40px;
   			box-sizing: border-box;
   			color: rgb(184, 152, 152);
+  		}
+
+  		.error-msg {
+  			text-align: center;
+  			display: block;
+  			height: 100px;
+  			background-color: #fdfcfb;
+  			padding: 40px;
+  			box-sizing: border-box;
+  			color: #FF0000;
   		}
 
   		.place-item {
@@ -312,15 +326,13 @@ html, body {
 
   				li {
   					display: block;
-					// background: #fff;
-					// width: 50px;
-					// height: 50px;
-					// border-radius: 100%;
-					// padding-top: 7px;
 					box-sizing: border-box;
 					text-align: center;
   					cursor:pointer;
 
+  					&.selected {
+						font-size: 1.3em;
+  					}
   				}
     		}
 		}
@@ -391,13 +403,13 @@ html, body {
 		.info {
 
 			height: 80%;
-			  overflow-y: auto;
-			  max-width: 700px;
-			  margin: auto;
-			  background-color: rgb(134, 0, 0);
-			  color: white;
-			  font-size: .9em;
-			  padding: 10px 10px 0 30px;
+			overflow-y: auto;
+			max-width: 700px;
+			margin: auto;
+			background-color: rgb(134, 0, 0);
+			color: white;
+			font-size: .9em;
+			padding: 10px 10px 0 30px;
 
 
 			ol {
@@ -425,6 +437,13 @@ html, body {
   				// padding:20px;
   				padding: 3%;
   			}
+
+			.wiki-error-msg {
+	  			display: block;
+	  			height: 100px;
+  				text-align: center;
+  				font-size: 1.2em;
+			}
 		}
 
 		.news {
