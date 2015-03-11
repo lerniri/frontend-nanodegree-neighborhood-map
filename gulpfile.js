@@ -26,7 +26,7 @@ gulp.task('styles_sass', function(){
 gulp.task('styles_css', function() {
 
 	console.log('Start styles task....', Date().toString());
-	return gulp.src('css/font/*')
+	return gulp.src('css/*.*')
 			.pipe(rename({ suffix: '.min'}))
 			.pipe(minifycss())
 			.pipe(gulp.dest('_build/css'))
@@ -74,4 +74,4 @@ gulp.task('images_opt', function () {
 /*
 	Task Started
 */
-gulp.task('default',['scripts','scripts_libs','styles_sass', 'styles_css','images_opt']);
+gulp.task('default',['scripts','scripts_libs','styles_sass', 'images_opt']);
