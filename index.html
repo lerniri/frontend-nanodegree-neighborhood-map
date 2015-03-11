@@ -7,17 +7,23 @@
     <title>Discover Your Neighborhood</title>
 
 	<!-- Animations -->
-	<link rel="stylesheet" type="text/css" href="css/font/animation.css">
+	<!-- PROD -->
+	<link rel="stylesheet" type="text/css" href="_build/css/font/animation.min.css">
+	<!-- DEV -->
+	<!-- link rel="stylesheet" type="text/css" href="css/font/animation.css" -->
+
 	<!-- Fonts style -->
-	<link rel="stylesheet" type="text/css" href="css/font/fontello.css">
+	<!-- PROD -->
+	<link rel="stylesheet" type="text/css" href="_build/css/font/fontello.min.css">
+	<!-- DEV -->
+	<!-- link rel="stylesheet" type="text/css" href="css/font/fontello.css" -->
 
 	<!-- Main Styles -->
-
 	<!-- PROD -->
-	<!-- link rel="stylesheet" type="text/css" href="_build/css/main.min.css" -->
+	<link rel="stylesheet" type="text/css" href="_build/css/main.min.css">
 
 	<!-- DEV -->
-	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<!-- link rel="stylesheet" type="text/css" href="css/main.css"-->
 	<!-- Main Styles End -->
 
 
@@ -33,7 +39,6 @@
 	<!-- Page main container -->
 	<div class="wrapper">
 		<div data-bind="with: MapViewModel">
-
 			<!-- entry screen allowing user to enter neighborhood to discover -->
 			<div class="entry" data-bind="visible: myNeighborhood() == ''">
 				<div class="entry-search">
@@ -74,7 +79,7 @@
 						<span>So many places to see around! <br> Please, be patient!</span>
 					</div>
 
-					<span class="places-prev nav-arrows" data-bind="click: scrollPlacesList(-1)"><img src="img/prev.png"></span>
+					<span class="places-prev nav-arrows" data-bind="click: scrollPlacesList(-1)"><img src="_build/img/prev.png"></span>
 					<ul data-bind="foreach: nearbyPlaces">
 
 						<!-- ko if: showItem -->
@@ -106,7 +111,7 @@
 						<!-- /ko -->
 					</ul>
 
-					<span class="places-next nav-arrows" data-bind="click: scrollPlacesList(1)"><img src="img/next.png"></span>
+					<span class="places-next nav-arrows" data-bind="click: scrollPlacesList(1)"><img src="_build/img/next.png"></span>
 					<span class="search-result" data-bind="visible: noPlacesToShow || nearbyPlaces().length <= 0">Sorry, nothing found.</span>
 					<span class="error-msg" data-bind="visible: errorMsg() !== '', text: errorMsg"></span>
 
@@ -171,14 +176,20 @@
 	<!-- Google API Library -->
     <!-- script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script -->
 	<script src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
 	<!-- Knockout CDN -->
+	<!-- PROD -->
 	<script src="_build/js/libs/knockout-3.2.0.min.js"></script>
+	<!-- DEV -->
+	<!-- script src="js/libs/knockout-3.2.0.js"></script -->
+
 	<!-- Application code -->
 	<!-- PROD -->
-	<!-- script src="_build/js/app.min.js"></script -->
+	<script src="_build/js/app.min.js"></script>
 	<!-- DEV -->
-	<script type="text/javascript" src="js/app.js"></script>
+	<!-- script type="text/javascript" src="js/app.js"></script-->
   </body>
 </html>

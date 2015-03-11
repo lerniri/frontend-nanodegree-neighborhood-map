@@ -3,12 +3,13 @@ var gulp 		 = require('gulp'),
 	minifycss 	 = require('gulp-minify-css')
 	autoprefixer = require('gulp-autoprefixer'),
 	rename		 = require('gulp-rename'),
-	uglify		 = require('gulp-uglify');
+	uglify		 = require('gulp-uglify'),
+	imagemin	 = require('gulp-imagemin');
 
 /*
 	Styles tasks
 */
-gulp.task('styles', function(){
+gulp.task('styles_sass', function(){
 
 	console.log('Start styles task....', Date().toString());
 
@@ -20,6 +21,15 @@ gulp.task('styles', function(){
 			.pipe(gulp.dest('_build/css'))
 
 	console.log('End styles task....', Date().toString());
+});
+
+gulp.task('styles_css', function() {
+
+	console.log('Start styles task....', Date().toString());
+	return gulp.src('css/font/*')
+			.pipe(rename({ suffix: '.min'}))
+			.pipe(minifycss())
+			.pipe(gulp.dest('_build/css'))
 });
 
 /*
@@ -54,11 +64,14 @@ gulp.task('scripts_libs', function(){
 /*
 	Images optimizer
 */
-
-
-
+gulp.task('images_opt', function () {
+	console.log('Start images optimizer task....', Date().toString());
+    gulp.src('img/*.*')
+        .pipe(imagemin())
+        .pipe(gulp.dest('_build/img'));
+});
 
 /*
 	Task Started
 */
-gulp.task('default',['scripts','scripts_libs','styles']);
+gulp.task('default',['scripts','scripts_libs','styles_sass', 'styles_css','images_opt']);
