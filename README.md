@@ -23,7 +23,7 @@
 
 <h3>Requirements</h3>
 <ul>
-	<li>Chrome, IE, Safari, Firefox, Opera supported </li>
-	<li>Addapted for mobile devices</li>
+	<li>Chrome/IE/Safari/Firefox/Opera supported </li>
+	<li>Adapted for mobile devices</li>
 	<li>Internet connection required</li>
 </ul>
