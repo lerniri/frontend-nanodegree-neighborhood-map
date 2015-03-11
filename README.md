@@ -1,5 +1,5 @@
 <h1>Discover Your Neighborhood application</h1>
-
+<strong>Link to application <a href="lerniri.git.io/neighborhood-map">lerniri.git.io/neighborhood-map</a> </strong>
 <p>This is a neighborhood map, which shows you 20 places around defined neighborhood and related wiki pages.
    It utilizes Google Maps API for loading neighorhood with nearby places onto the map and Wiki API to get
    wiki pages for selected neighborhood.
