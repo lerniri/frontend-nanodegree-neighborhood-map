@@ -26,6 +26,5 @@
 <ul>
 	<li>Chrome/IE/Safari/Firefox/Opera supported </li>
 	<li>Adapted for mobile devices</li>
-	<li>Internet connection required</li>
 </ul>
 
