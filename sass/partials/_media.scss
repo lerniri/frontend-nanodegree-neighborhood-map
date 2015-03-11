@@ -1,5 +1,10 @@
-@media screen and (max-width: 500px) {
 
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen
+and (min-width : 320px)
+and (max-width : 600px) {
+
+/* Styles */
 	.layers {
 		font-size:.6em;
 
@@ -8,13 +13,138 @@
 		}
 	}
 
-}
-
-@media screen and (max-width: 341px) {
-
-	#addinfo-wrapper .addinfo-content.show-addinfo {
-		height: 65vh;
+	.addinfo-wrapper .addinfo-content.show-addinfo {
+		height: 69vh;
 	}
 
+	.addinfo-wrapper .addinfo-content .info {
+		font-size:.75em;
+	}
+
+	.addinfo-wrapper .inner .menu ,
+	.addinfo-wrapper .inner .menu ul li.selected  {
+		font-size:.8em;
+	}
+
+	.places-list-wrapper {
+
+  		right:0;
+  		height: auto;
+  		width: 100%;
+
+  		.nav-arrows {
+
+  			position: absolute;
+  			top: 20px;
+  			cursor: pointer;
+
+  			img {
+  				width:50px;
+  			}
+
+  		}
+
+  		&:hover .nav-arrows {
+			display:block;
+		}
+
+  		.places-next {
+  			right:0;
+  		}
+
+  		h5 {
+  			font-size: .9em;
+  		}
+
+		.header {
+			display: none;
+		}
+
+		.content {
+
+			overflow: hidden;
+
+			& > ul {
+				white-space: nowrap;
+			}
+
+			.place-item {
+				display:inline-block;
+				max-width:none;
+ 				margin-left: -4px;
+  				border-right: 1px solid rgba(134, 0, 0, .5);
+
+  				.place-reviews {
+  					display:none;
+  				}
+
+  				.place-item-logo {
+  					height:15px;
+					width:15px;
+  				}
+			}
+
+			.loader {
+				i {
+					margin-top:5%;
+				}
+			}
+
+		}
+
+	}
 }
 
+/* Smartphones (landscape) ----------- */
+@media only screen
+and (min-width : 321px) {
+/* Styles */
+}
+
+/* Smartphones (portrait) ----------- */
+@media only screen
+and (max-width : 320px) {
+/* Styles */
+}
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen
+and (min-width : 768px)
+and (max-width : 1024px) {
+/* Styles */
+}
+
+/* iPads (landscape) ----------- */
+@media only screen
+and (min-width : 768px)
+and (max-width : 1024px)
+and (orientation : landscape) {
+/* Styles */
+}
+
+/* iPads (portrait) ----------- */
+@media only screen
+and (min-width : 768px)
+and (max-width : 1024px)
+and (orientation : portrait) {
+/* Styles */
+}
+
+/* Desktops and laptops ----------- */
+@media only screen
+and (min-width : 1224px) {
+/* Styles */
+}
+
+/* Large screens ----------- */
+@media only screen
+and (min-width : 1824px) {
+/* Styles */
+}
+
+/* iPhone 4 ----------- */
+@media
+only screen and (-webkit-min-device-pixel-ratio : 1.5),
+only screen and (min-device-pixel-ratio : 1.5) {
+/* Styles */
+}

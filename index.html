@@ -4,18 +4,22 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Neighborhood Map</title>
+    <title>Discover Your Neighborhood</title>
 
 	<!-- Animations -->
 	<link rel="stylesheet" type="text/css" href="css/font/animation.css">
 	<!-- Fonts style -->
 	<link rel="stylesheet" type="text/css" href="css/font/fontello.css">
 
-	<!-- Fotorama Gallery -->
-	<link  href="http://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.3/fotorama.css" rel="stylesheet"> <!-- 3 KB -->
-
 	<!-- Main Styles -->
+
+	<!-- PROD -->
+	<!-- link rel="stylesheet" type="text/css" href="_build/css/main.min.css" -->
+
+	<!-- DEV -->
 	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<!-- Main Styles End -->
+
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -29,19 +33,19 @@
 	<!-- Page main container -->
 	<div class="wrapper">
 		<div data-bind="with: MapViewModel">
+
+			<!-- entry screen allowing user to enter neighborhood to discover -->
 			<div class="entry" data-bind="visible: myNeighborhood() == ''">
 				<div class="entry-search">
 					<input data-bind="value: myNeighborhood" />
-					<h1>Enter Your Neighborhood</h1>
-
+					<h1>Discover Your Neighborhood</h1>
 				</div>
-
 			</div>
+
 			<!-- Google Map container -->
 			<div id="map"></div>
 			<!-- Top Bar Navigation and Search-->
 			<div class="topbar cf">
-
 				<div class="searches">
 					<input id="neighborhood-search" class="neighborhood-search" data-bind="value: myNeighborhood" type="search" placeholder="Type Neighborhood">
 					<input class="places-search" type="search" data-bind="value:keywordSearch" placeholder="Type to filter places">
@@ -49,7 +53,7 @@
 				</div>
 				<div class="layers">
 					<ul>
-						<li data-bind="click: toggleBikeLayer" title="Show/Hide Bike Routes"><i class="icon-bicycle"></i></li>
+						<li data-bind="click: toggleBikeLayer"    title="Show/Hide Bike Routes"><i class="icon-bicycle"></i></li>
 						<li data-bind="click: toggleTransitLayer" title="Show/Hide Transit Routes"><i class="icon-bus"></i></li>
 						<li data-bind="click: toggleTrafficLayer" title="Show/Hide Traffic"><i class="icon-cab"></i></li>
 					</ul>
@@ -57,26 +61,25 @@
 			</div>
 
 
-			<!-- Places list  wrapper -->
-			<div id="places-list-wrapper">
+			<!-- Nearby places list wrapper -->
+			<div class="places-list-wrapper">
 
 				<div class="header">
 					<h3>Nearby Places</h3>
 				</div>
-				<!-- Places search results list content-->
+				<!-- Nearby places list content-->
 				<div class="content">
-
-					<div class="loader" data-bind="visible: loading">
-						<!-- <img src="img/ajax-loader.gif"> -->
+					<div id="nearby-loader" class="loader" data-bind="visible: loading">
 						<i class="icon-spin6 animate-spin"></i>
 						<span>So many places to see around! <br> Please, be patient!</span>
 					</div>
 
+					<span class="places-prev nav-arrows" data-bind="click: scrollPlacesList(-1)"><img src="img/prev.png"></span>
 					<ul data-bind="foreach: nearbyPlaces">
 
 						<!-- ko if: showItem -->
 						<li class="place-item" data-bind="click: $parent.panMapToClickedPlace">
-							<!-- <div class="place-item-title"> -->
+
 							<img class="place-item-logo" data-bind="attr: {src: icon}">
 
 							<!-- Place title -->
@@ -85,7 +88,6 @@
 							<!-- Type list -->
 							<p class="type" data-bind="text: types[0]"></p>
 
-							<!-- <ul class="types" data-bind="foreach: types"><li data-bind="text: $data"></li></ul> -->
 							<!-- Web site -->
 							<p class="website" data-bind="text: website"></p>
 
@@ -104,6 +106,7 @@
 						<!-- /ko -->
 					</ul>
 
+					<span class="places-next nav-arrows" data-bind="click: scrollPlacesList(1)"><img src="img/next.png"></span>
 					<span class="search-result" data-bind="visible: noPlacesToShow || nearbyPlaces().length <= 0">Sorry, nothing found.</span>
 					<span class="error-msg" data-bind="visible: errorMsg() !== '', text: errorMsg"></span>
 
@@ -111,54 +114,55 @@
 			</div>
 		</div> <!-- MapViewModel -->
 
-		<!-- Pics / News / Info View at the bottom -->
-		<div id="addinfo-wrapper">
+		<!-- Additional info on the neighborhood: Pics / News / Wiki or whatever you wish -->
+		<div class="addinfo-wrapper">
 			<div class="inner">
 				<div class="addinfo-top" data-bind="with:AddInfoViewModel">
 					<div class="menu">
 						<ul>
-							<!-- <li data-bind="click: toggleNews"><i class="icon-signal" title="Local News"></i></li> -->
+
 							<li id="wikibtn" data-bind="click: toggleWiki"><i class="icon-wikipedia" title="Info on the neighborhood"></i></li>
+							<!-- @TODO: additional features planned for next version  -->
+							<!-- <li data-bind="click: toggleNews"><i class="icon-signal" title="Local News"></i></li> -->
 							<!-- <li id="flickrbrn" data-bind="click: toggleFlickr"><i class="icon-flickr-circled" title="Flickr Pics"></i></li> -->
 						</ul>
-					</div>
-
-					<div class="loader" data-bind="visible: addInfoLoading">
-						<i class="icon-spin6 animate-spin"></i>
-						<span>Requesting data! <br> Please, be patient!</span>
 					</div>
 				</div> <!-- AddViewInfoModel -->
 
 				<div class="addinfo-content">
 					<!-- Flickr Photos Container -->
-					<div data-bind="with: FlickrViewModel">
+					<!-- @TODO: additional feature planned for next version -->
+					<!-- <div data-bind="with: FlickrViewModel">
 						<div class="instagram" data-bind="visible: flickrEnabled">
 							<ul class="img-gallery" data-bind="foreach: neighborhoodImages">
 								<li><img data-bind="attr: {src: $data.pic_thumb, href: $data.pic}" >
 								</li>
 							</ul>
 						</div>
-					</div>
-
-					<!-- InstagramViewModel -->
+					</div> -->
 
 					<!-- Wiki info container -->
 					<div data-bind="with:WikiViewModel">
 						<!-- WikiViewModel Context-->
 						<div class="info" data-bind="visible: wikiEnabled">
+
 							<h3>Wiki pages</h3>
+
+							<!-- Ordered list of found wiki pages -->
 							<ol data-bind="foreach: wikiPages">
 								<li>
 									<a data-bind="attr: {href: $data.link}, text: $data.title" target="_blank" class="title"></a>
 									<p data-bind="html: $data.snippet" class="snippet"></p>
 								</li>
 							</ol>
+							<div class="wiki-loader" data-bind="visible: loading">
+								<i class="icon-spin6 animate-spin"></i>
+								<span>Loading wiki resources</span>
+							</div>
 							<span class="wiki-error-msg" data-bind="visible: wikiErrorMsg() !=='', text: wikiErrorMsg"></span>
-
 						</div>
 						<!-- WikiViewModel Context -->
 					</div>
-
 				</div>
 			</div>
 		</div>
@@ -166,13 +170,15 @@
 
 	<!-- Google API Library -->
     <!-- script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script -->
-	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+	<script src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-
 	<!-- Knockout CDN -->
-	<script src="js/libs/knockout-3.2.0.js"></script>
+	<script src="_build/js/libs/knockout-3.2.0.min.js"></script>
 	<!-- Application code -->
-	<script type="text/javascript" src="_build/js/app.min.js"></script>
+	<!-- PROD -->
+	<!-- script src="_build/js/app.min.js"></script -->
+	<!-- DEV -->
+	<script type="text/javascript" src="js/app.js"></script>
   </body>
 </html>

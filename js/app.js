@@ -3,35 +3,36 @@ var shouter = new ko.subscribable();
 
 /***************************************************************
 
-	AddInfoViewModel is handling addinfo-wrapper functionality
+	AddInfoViewModel is handling addinfo-wrapper related functionality
 
 ****************************************************************/
 var AddInfoViewModel = function() {
 
 	var self 		= this;
 	var $wikiBtn	= $('#wikibtn');	// DOM element holding wiki button
-	var $flickrBtn	= $('#flickrbtn');	// DOM element holding flickr button
+	var $flickrBtn	= $('#flickrbtn');	// DOM element holding flickr button @TODO: additional feature planned for next version
 
 	self.wikiEnabled			= ko.observable(false);			// boolean value, indicating whether wiki view is currently active or not
-	self.flickrEnabled   		= ko.observable(false);			// boolean value, indicating whether instagram view is currently active or not
+	self.flickrEnabled   		= ko.observable(false);			// boolean value, indicating whether instagram view is currently active or not @TODO: additional feature planned for next version
 	self.addInfoLoading 		= ko.observable(false);			// boolean value, indicating whether additional info panel is currently loading its content
 	self.showAddInfoWindow      = ko.observable(false);			// boolean value, indicating whether additional info window should be shown or not
 
-	/*	register notifier whenever wikiEnabled value is updated
+	/*	register notifier to send updates whenever wikiEnabled value gets changed
 	*/
 	self.wikiEnabled.subscribe(function(newValue) {
 		shouter.notifySubscribers(newValue, "wikiEnabled");
 	});
 
 
-	/*	register notifier whenever flickrEnabled value is updated
+	/*	register notifier to send updates whenever flickeEnabled value gets changed
+		@TODO: additional feature planned for next version
 	*/
 	self.flickrEnabled.subscribe(function(newValue) {
 		shouter.notifySubscribers(newValue, "flickrEnabled");
 	});
 
 
-	/* @TODO: add description
+	/* toggles wiki info window visibility status
 	*/
 	self.toggleWiki = function() {
 		self.wikiEnabled( !self.wikiEnabled() );
@@ -44,7 +45,7 @@ var AddInfoViewModel = function() {
 	};
 
 
-	/* @TODO: add description
+	/* @TODO: additional feature planned for next version
 	*/
 	self.toggleFlickr = function() {
 		self.flickrEnabled( !self.flickrEnabled() );
@@ -55,7 +56,7 @@ var AddInfoViewModel = function() {
 
 
 	/*
-		show/hide addinfo-content by adding/removing 'show-addinfo' class, when wiki button is clicked.
+		show/hide addinfo-content by adding/removing 'show-addinfo' class, when wiki button is toggled.
 	*/
 	self.showAddInfoWindow	= ko.computed(function() {
 		var $addinfo = $(".addinfo-content");
@@ -73,7 +74,7 @@ var AddInfoViewModel = function() {
 
 /***************************************************************
 
-	WikiViewModel is handling wiki content
+	WikiViewModel is handling wiki related content
 
 ****************************************************************/
 
@@ -81,7 +82,7 @@ var WikiViewModel = function() {
 
 	var self = this;
 
-	var endpoint = "http://ens.wikipedia.org/w/api.php?";  	//wikipedia api endpoint
+	var endpoint = "http://en.wikipedia.org/w/api.php?";  	//wikipedia api endpoint
 	var wikiLink = "http://en.wikipedia.org/wiki/" ; 		//wikipedia pages link
 
 	/************************************
@@ -92,14 +93,17 @@ var WikiViewModel = function() {
     self.myNeighborhood 		= ko.observable("");		// string holding neighborhood
     self.wikiEnabled  			= ko.observable(false); 	// boolean value, indicating whether wiki view is currently enabled or disabled
     self.wikiErrorMsg			= ko.observable("");		// string holding wiki api last error - normally expected to be ""
+    self.loading 				= ko.observable(false);     // boolean value, indicating whether wiki view is currently loading its content
 
-
-    // register listener to wikiEnabled value
+    /* register listener to wikiEnabled value
+    */
     shouter.subscribe(function(newValue){
     	self.wikiEnabled(newValue);
     }, self, "wikiEnabled");
 
-    // register listener to myNeighborhood value
+    /* register listener to myNeighborhood value
+    	whenever neighborhood is changed let's reset current wiki pages set
+    */
     shouter.subscribe(function(newValue) {
         self.myNeighborhood(newValue);
         self.wikiPages([]);
@@ -110,27 +114,36 @@ var WikiViewModel = function() {
 			COMPUTED OBSERVABLES
 	*************************************/
 
-    // run wiki pages search when wiki view is enabled
+    /* run wiki pages search when wiki view is enabled
+    */
     self.wikiEnabledComputed = ko.computed(function(){
     	if (self.wikiEnabled()) {
     		searchWikiPages(self.myNeighborhood());
     	}
     });
 
-    /*
-    	function performs text search of top 5 wiki pages, containing myNeighborhood value in the content.
+    /* function performs text search of top 5 wiki pages, containing myNeighborhood value in the content.
     */
 	function searchWikiPages(searchStr) {
+
 
 		if ( !self.wikiEnabled() || self.wikiPages().length > 0 ) {
 			return;
 		}
 
+
 		var url = endpoint+"format=json&action=query&list=search&srsearch="+searchStr+"&srlimit=5&callback=?";
 
+
+		/* register the error in case wiki pages search didn't succeed for some reason.
+		*/
 		var wikiRequestTimeout = setTimeout(function() {
 			self.wikiErrorMsg("Failed to get wikipedia resources");
+			self.loading(false);
 		}, 3000);
+
+		self.loading(true);
+		self.wikiErrorMsg("");
 
 		$.ajax({
 	    	url: url,
@@ -143,8 +156,10 @@ var WikiViewModel = function() {
 		        		snippet	: data.query.search[i].snippet
 		        	});
 				}
-
+				/* remove need of running error hanling  wikiRequestTimeout function , as we got success completion.
+				*/
 				clearTimeout(wikiRequestTimeout);
+				self.loading(false);
 	    	}
 		});
 	}
@@ -158,6 +173,9 @@ var WikiViewModel = function() {
 /* ============================================
  *  			Flickr View Model
 /* ============================================ */
+/* @TODO: Additional feature to add in next version
+ * Object is not used by current version of application.
+ */
 var FlickrViewModel = function() {
 	var self = this;
 
@@ -190,12 +208,11 @@ var FlickrViewModel = function() {
     }, self, "neighborhood");
 
 
-	/* @TODO: add description
+	/* Initiate loading of flickr images
 	*/
-	self.computedLoadInstagram = ko.computed(function(){
-		// quit function in case instagram  window is closing
+	self.computedLoadFlickr = ko.computed(function(){
+
 		if ( !self.flickrEnabled() || self.neighborhoodImages().length > 0 ) {
-			//TODO: think of utilizing local storage to save loaded pics
 			return;
 		}
 
@@ -204,9 +221,10 @@ var FlickrViewModel = function() {
 	});
 
 
-	/* @TODO: add description
+	/* Requests flickr images utilizing flickr api
 	*/
 	function loadImages() {
+
 		var min_upload_date  	=  Date.now() - 60 * 60 * 24 * 30, 	// (30 days in ms)
 			privacy_filter  	= 1, 								// public photos
 			content_type  		= 1, 								// photos only
@@ -220,7 +238,9 @@ var FlickrViewModel = function() {
 					+ lng+"&text="+text+"&privacy_filter="
 					+ privacy_filter+"&content_type="+content_type+"&per_page="+per_page;
 
-
+		/* register the error in case wiki pages search didn't succeed for some reason.
+		*  function will be run in 5s in case ajax call below doesn't return success.
+		*/
 		var FlickrRequestTimeout = setTimeout(function(){
 			self.flickrErrorMsg("Failed to load Flickr images");
 		}, 5000);
@@ -232,7 +252,6 @@ var FlickrViewModel = function() {
 			dataType: "jsonp",
 			success: function(data) {
 	   			for (var i = 0 ; i < data.photos.photo.length ; i++) {
-
 	   				self.neighborhoodImages.push({
 	   					"title"		: data.photos.photo[i].title,
 	   					"owner"		: data.photos.photo[i].owner,
@@ -240,8 +259,9 @@ var FlickrViewModel = function() {
 	   					"pic"		: constructImageURL(data.photos.photo[i], 'b')
 	   				});
 	   			}
-	   				clearTimeout(FlickrRequestTimeout);
-				}
+	   			/* remove need of running error hanling  timeout function , as we got success completion.
+				*/
+	   			clearTimeout(FlickrRequestTimeout);
 			}
 		});
 	}
@@ -298,6 +318,8 @@ var MapViewModel = function() {
 		'zoo'
 	];
 
+	var radius = 2000; 		// search radius in meters
+
 	var nearbyMarkers = [];	// array with nearby places markers
 
 	var GMAPS_PLACESSERVICE_STATUS_OK = google.maps.places.PlacesServiceStatus.OK; 								//google places service return status: "OK"
@@ -353,7 +375,8 @@ var MapViewModel = function() {
 	};
 
 
-	/* @TODO: add description
+	/* Triggered when user clicks to the nearby place from the list and
+	 * pans map center to respective marker
 	*/
 	self.panMapToClickedPlace = function() {
 		for (var i=0; i < nearbyMarkers.length; i++) {
@@ -365,34 +388,43 @@ var MapViewModel = function() {
 		}
 	};
 
+	/* horizontal scrolling for places list controlled by arrows  (for mobile users)
+	*/
+	self.scrollPlacesList = function(delta) {
+		var $places = $('.places-list-wrapper .content');
+
+		var scrollStep = $places[0].scrollLeft + $places.width() / 2 * delta;
+		console.log(scrollStep);
+		$places.animate({
+			scrollLeft :  scrollStep
+		}, 600);
+
+	}
+
 	initMap();
 
-	/* Close addinfo window whenever user clicks on outside area
-		@TODO: looks like this one doesn't work
-	*/
-	$(document).click(function(event){
-		if ( $(event.target).closest('div.addinfo-content').length > 1 ) {
-			self.showAddInfoWindow(false);
-		}
-	});
 
+	/* reset places list left scroll position to 0, when window is resized.
+	*/
+	$(window).resize(function () {
+		$('.places-list-wrapper .content')[0].scrollLeft = 0 ;
+
+	})
 
 	/************************************************************************
 								COMPUTED OBSERVABLES
 	*************************************************************************/
 	/*
-		load neighborhood on the map depending on the chosen neighborhood
+		track changes of myNeighborhood value and initiate neighborhood loading activities.
 	*/
 	self.computedNeighborhood = ko.computed(function() {
 		if (self.myNeighborhood() !== '') {
-			// InstagramViewModel.neighborhoodImages([]);
 			requestNeighborhood();
-
 		}
 
 	});
 
-	/* @TODO: add description
+	/* toggles markers selected animation, i.e launches animation for selected marker, stops animation for other markers
 	*/
 	self.markerAnimationIsRunning = ko.computed(function() {
 		if (self.chosenMarker() !== "") {
@@ -418,14 +450,21 @@ var MapViewModel = function() {
 
  		var mapOptions = {
  			zoom:14,
-			mapTypeControl:false,
-			scaleControl:true,
-			streetViewControl:true,
-			overviewMapControl:true,
-			rotateControl:true
+			mapTypeControl: true,
+			panControl: true,
+			panControlOptions: {
+  				position: google.maps.ControlPosition.LEFT_CENTER
+			},
+			zoomControl: true,
+			zoomControlOptions: {
+  				style: google.maps.ZoomControlStyle.LARGE,
+  				position: google.maps.ControlPosition.LEFT_CENTER
+			},
+			streetViewControl: false
   		};
 
   		map 			= new google.maps.Map(document.querySelector('#map'), mapOptions);
+
   		infoWindow		= new google.maps.InfoWindow();
   		placesService 	= new google.maps.places.PlacesService(map);
 
@@ -433,6 +472,8 @@ var MapViewModel = function() {
   		trafficLayer 	= new google.maps.TrafficLayer();
   		transitLayer 	= new google.maps.TransitLayer();
 
+  		/* adjust map center upon window resize
+  		*/
   		google.maps.event.addDomListener(window, "resize", function() {
      		var center = map.getCenter();
      		google.maps.event.trigger(map, "resize");
@@ -441,22 +482,27 @@ var MapViewModel = function() {
 	}
 
 
-	/* requestNeighborhood() function:
-	 *
-	 *	Search neighborhood map data
+	/* 	Executes text search request using  google placesService.
 	 */
 	function requestNeighborhood() {
+		//reset settings
+		nearbyMarkers = [];
+		clearMarkers();
+		self.nearbyPlaces([]);
+		self.keywordSearch("");
+		self.chosenMarker("");
 
 		var request = {
     		query: self.myNeighborhood()
   		};
 
+
   		placesService.textSearch(request, loadNeighborhood);
 	}
 
 
-	/*
-		load neighborhood on the map , based on parameters returned in places search
+	/*  requestNeighborhood callback
+		 loads found neighborhood on the map and launches nearby places search.
 	*/
 
 	function loadNeighborhood(results, status) {
@@ -466,7 +512,6 @@ var MapViewModel = function() {
 			var place 		= results[0];
 			var lat 		= place.geometry.location.lat();
 			var lng 		= place.geometry.location.lng();
-			// var placeName 	= place.name;
 
 			var myLocation	= new google.maps.LatLng(lat,lng);
 
@@ -476,21 +521,20 @@ var MapViewModel = function() {
 			requestNearbyPlaces();
 
 		} else {
-			self.errorMsg("Failed to load neighborhood");
+			self.errorMsg("Failed to load neighborhood due to the following issue: "+status);
 		}
 	}
 
-	/*
-		Request nearby places
+	/* Request nearby places
+	 * 	Executes nearby search using  google placeService
 	*/
 	function requestNearbyPlaces() {
 		/*
-			find places within 1000  radius from our neighborhood;
-			places types: store... TODO: add more, or make that configurable;
+			find places within 2000  radius from our neighborhood;
 		*/
 		var request = {
 			location: map.getCenter(),
-			radius: 2000,
+			radius: radius,
 			types:placesTypes
 		};
 
@@ -498,33 +542,18 @@ var MapViewModel = function() {
 
 	}
 
-	/*
-		Text Search for nearby places
-	*/
-	function requestNearbyPlacesKeyword() {
 
-		var request = {
-			location: map.getCenter(),
-			radius: 1000,
-			query: self.keywordSearch()
-		};
-
-		placesService.textSearch(request, loadNearbyPlaces);
-	}
-
-	/*
-		Load returned places to the list of places and load respective markers on the map
+	/* requestNearbyPlaces callback
+		Gets additional details on the returned place , loads respective markers on the map.
+		Due to Google limitation of 10 requests in 1s , places details request was implemented as a recursive 'process_result' function, which is being timedout
+		and relaunched whenever limit reject is received from google .
 	*/
 
-	function loadNearbyPlaces(results, status, pagination) {
+	function loadNearbyPlaces(results, status) {
 
 		if (status === GMAPS_PLACESSERVICE_STATUS_OK) {
-			//Load places list
 
-			self.nearbyPlaces([]);
-			clearMarkers();
-
-			// recursive function (a work around for request limit)
+			// recursive function (a work around for Google request count limitation)
 			var process_result = function (result, i) {
 
 				self.loading(true);
@@ -542,7 +571,6 @@ var MapViewModel = function() {
 
 					if (status === GMAPS_PLACESSERVICE_STATUS_OK)   {
 
-						//create mearby place
 						self.nearbyPlaces.push({
 							name		: place.name,
 							icon		: place.icon,
@@ -563,18 +591,20 @@ var MapViewModel = function() {
 							address 	: place.formatted_address,
 							phone 		: place.formatted_phone_number,
 							showMarker  : true
-
-							//add more options used by info window
 						}));
 
+						//set place marker on the map
 						setMarker(nearbyMarkers[i], place);
-						// increment 'i'
+
+						// increment 'i' (step to next place item)
 						process_result(result, i+1);
 
+						// when we initially load nearby places there is no need to filter out their visibility in places list,
+						// so we know that at least one item will be displayed.
 						self.noPlacesToShow(false);
 
 					} else if (status === GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT) {
-						// wait 200ms, then try again with same 'i'
+						// wait 200ms, then try again with same place item
 						window.setTimeout(function (){
 							process_result(result, i);
 						}, 200);
@@ -587,35 +617,28 @@ var MapViewModel = function() {
 
 		} else { // nearbyPlaces request returned in errorneous state
 
-			self.errorMsg("Failed to load neighborhood places");
+			self.errorMsg("Failed to load neighborhood places due to :"+ status);
 		}
 
-	} // loadNearbyPlaces() END
-
-
-	// /*
-	// 	Search places callback function - checks search status
-	// 	and runs loadNearbyPlacesOnMap function if status is OK
-	// */
-	// function requestNearbyPlacesCallback(results, status) {
-	// 	if ( status === GMAPS_PLACESSERVICE_STATUS_OK ) {
-	// 		loadNearbyPlacesOnMap(results);
-	// 	}
-	// }
+	}
 
 
 	/*
-		filter places by search key contained in place name or types
+		filter places list according to value entered by user and stored in  keywordSearch observable
 	*/
 	self.filterPlaces = function () {
 
 		var words = self.keywordSearch().split(' ');
-
-		var list = self.nearbyPlaces();
+		var list  = self.nearbyPlaces();
 
 		self.nearbyPlaces([]);
 		self.noPlacesToShow(true);
 
+		/*
+			Run through list of places and find places having keywordSearch value contained in the name
+			or types . For those mark these places and respective markers as visible (showItem / showMarker = true)
+			Others places should be set to unvisible.
+		*/
 		list.forEach(function(item) {
 
 			var str = item.name;
@@ -640,6 +663,8 @@ var MapViewModel = function() {
 					}
 				}
 
+				/* check whether we have anything to be shown in places list
+				*/
 				if ( self.noPlacesToShow() ) {
 					( found ) ? self.noPlacesToShow(false) : self.noPlacesToShow(true);
 				}
@@ -648,17 +673,17 @@ var MapViewModel = function() {
 				self.nearbyPlaces.push(item);
 			}
 
-
 		});
 
+		//load filtered list into UI
 		self.nearbyPlaces(list);
-		//update markers visibility
+		//re-load markers on the map (only enabled will be shown)
 		setMarkers(nearbyMarkers);
 	};
 
 
 	/*
-		Set marker visibility
+		Set marker visibility on the map according to their showMarker value.
 	*/
 	function setMarkerVisibility(place, bool) {
 		nearbyMarkers.forEach(function(item){
@@ -671,7 +696,7 @@ var MapViewModel = function() {
 		Set marker on the map
 		Assign trigger event on click
 	*/
-	function setMarker(marker, place) {
+	function setMarker(marker) {
 
 		marker.setMap(map);
 
@@ -679,13 +704,13 @@ var MapViewModel = function() {
 
 		google.maps.event.addListener(marker, 'click', function() {
 			// get place additional information
-        	infoWindow.setContent( "<div id='infowindow-div' class='noscroll'><h6>" + marker.name + "</h6><p>" + marker.address + "</p><span>"+ marker.phone +"</span></div>" );
+        	infoWindow.setContent( "<div class='infowindow-div noscroll'><h6>" + marker.name + "</h6><p>" + marker.address + "</p><span>"+ marker.phone +"</span></div>" );
         	infoWindow.open(map, this);
         	map.panTo(marker.position);
   			self.chosenMarker(marker);
       	});
 
-
+		// stop marker animation whenever infoWindow is closed
     	google.maps.event.addListener(infoWindow,'closeclick',function(){
     		if (self.chosenMarker() !== "" && self.chosenMarker().getAnimation() !== null) {
     			self.chosenMarker().setAnimation(null);
@@ -697,7 +722,6 @@ var MapViewModel = function() {
 
 	/*
 		Apply markers on the map
-
 	*/
 	function setMarkers() {
 		clearMarkers();
@@ -709,33 +733,18 @@ var MapViewModel = function() {
   		}
 	}
 
-	/*
-		Clear markers from the map
-
+	/* Clear markers on  the map
 	*/
 	function clearMarkers() {
 		for (var i = 0; i < nearbyMarkers.length; i++) {
     		nearbyMarkers[i].setMap(null);
   		}
-  		nearbyMarkers = [];
-	}
-
-	/*
-		Additional Info Window (Show/Hide)
-	*/
-
-	function showHideAdditionalInfoWindow() {
-		var $addinfo = $('.addinfo-content');
-		if ( self.flickrEnabled() || self.wikiEnabled() || self.newsFeedEnabled() ) {
-			$addinfo.addClass('show-addinfo');
-		} else if  ( !self.flickrEnabled() && !self.wikiEnabled() && !self.newsFeedEnabled() ) {
-			$addinfo.removeClass('show-addinfo');
-		}
+  		//nearbyMarkers = [];
 	}
 
 
 	/*
-		Show/Hide Layers
+		Toggle map layers according to icon clicked.
 	*/
 
 	function showHideLayers() {
@@ -768,23 +777,6 @@ var MapViewModel = function() {
 		}
 	}
 
-	/*
-		Checks whether there is nothing to show in nearbyPlacesFiltered
-	*/
-	function havePlacesToShow() {
-		var showItemsCount = 0;
-		self.nearbyPlaces().forEach(function(item) {
-			if (item.showItem) {
-				showItemsCount++;
-			}
-		});
-
-		if (showItemsCount > 0) {
-			self.noPlacesToShow(false);
-		} else {
-			self.noPlacesToShow(true);
-		}
-	}
 };
 
 /* =================================================
@@ -793,7 +785,8 @@ var MapViewModel = function() {
 var masterViewModel = function() {
 	this.AddInfoViewModel	= new AddInfoViewModel();
 	this.WikiViewModel 		= new WikiViewModel();
-	this.FlickrViewModel  	= new FlickrViewModel();
+	//@TODO: Additional feature planned for next version
+	// this.FlickrViewModel  	= new FlickrViewModel();
 	this.MapViewModel		= new MapViewModel();
 };
 
