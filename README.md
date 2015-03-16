@@ -29,3 +29,15 @@
 	<li>Internet connection required</li>
 </ul>
 
+<hr>
+<h2> Evaluation followup tasks </h1>
+<ol>
+	<li>Places list:  Initiate search upon enter press</li>
+	<li>Places list: Add "selected" state to list item</li>
+	<li>Code Quality: Adjust code according to style guide</li>
+	<li>Codes Comments: Use JSDoc style to improve comments</li>
+	<li>Error Handling: Provide some reasonable msg to the user when internet is off</li>
+</ol>
+<h2> Exceeds Expectation </h2>
+
+
