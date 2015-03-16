@@ -29,7 +29,7 @@
 </ul>
 
 <hr>
-<h2> Evaluation followup tasks </h2>
+<h3> Evaluation followup tasks </h3>
 <ol>
 	<li>Places list:  Initiate search upon enter press</li>
 	<li>Places list: Add "selected" state to list item</li>
