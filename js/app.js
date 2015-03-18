@@ -1,6 +1,5 @@
 var shouter = new ko.subscribable();
 
-
 /***************************************************************
 
 	AddInfoViewModel is handling addinfo-wrapper related functionality
@@ -8,14 +7,23 @@ var shouter = new ko.subscribable();
 ****************************************************************/
 var AddInfoViewModel = function() {
 
-	var self 		= this;
-	var $wikiBtn	= $('#wikibtn');	// DOM element holding wiki button
-	var $flickrBtn	= $('#flickrbtn');	// DOM element holding flickr button @TODO: additional feature planned for next version
+	var self = this;
+	// DOM element holding wiki button
+	var $wikiBtn = $('#wikibtn');
+	// DOM element holding flickr button @TODO: additional feature planned for next version
+	var $flickrBtn = $('#flickrbtn');
 
-	self.wikiEnabled			= ko.observable(false);			// boolean value, indicating whether wiki view is currently active or not
-	self.flickrEnabled   		= ko.observable(false);			// boolean value, indicating whether instagram view is currently active or not @TODO: additional feature planned for next version
-	self.addInfoLoading 		= ko.observable(false);			// boolean value, indicating whether additional info panel is currently loading its content
-	self.showAddInfoWindow      = ko.observable(false);			// boolean value, indicating whether additional info window should be shown or not
+	//boolean value, indicating whether wiki view is currently active or not
+	self.wikiEnabled = ko.observable(false);
+
+	
+	// @TODO: additional feature planned for next version
+	// boolean value, indicating whether instagram view is currently active or not 
+	self.flickrEnabled = ko.observable(false);
+	// boolean value, indicating whether additional info panel is currently loading its content
+	self.addInfoLoading = ko.observable(false);
+	// boolean value, indicating whether additional info window should be shown or not
+	self.showAddInfoWindow = ko.observable(false);
 
 	/*	register notifier to send updates whenever wikiEnabled value gets changed
 	*/
@@ -82,18 +90,25 @@ var WikiViewModel = function() {
 
 	var self = this;
 
-	var endpoint = "http://en.wikipedia.org/w/api.php?";  	//wikipedia api endpoint
-	var wikiLink = "http://en.wikipedia.org/wiki/" ; 		//wikipedia pages link
+	//wikipedia api endpoint
+	var endpoint = "http://en.wikipedia.org/w/api.php?";
+	//wikipedia pages link
+	var wikiLink = "http://en.wikipedia.org/wiki/" ;
 
 	/************************************
 				OBSERVABLES
 	*************************************/
 
-	self.wikiPages 				= ko.observableArray([]); 	// array with found wiki pages
-    self.myNeighborhood 		= ko.observable("");		// string holding neighborhood
-    self.wikiEnabled  			= ko.observable(false); 	// boolean value, indicating whether wiki view is currently enabled or disabled
-    self.wikiErrorMsg			= ko.observable("");		// string holding wiki api last error - normally expected to be ""
-    self.loading 				= ko.observable(false);     // boolean value, indicating whether wiki view is currently loading its content
+	// array with found wiki pages
+	self.wikiPages 			= ko.observableArray([]);
+	// string holding neighborhood
+    self.myNeighborhood		= ko.observable("");
+    // boolean value, indicating whether wiki view is currently enabled or disabled
+    self.wikiEnabled 		= ko.observable(false);
+    // string holding wiki api last error - normally expected to be ""
+    self.wikiErrorMsg		= ko.observable("");
+    // boolean value, indicating whether wiki view is currently loading its content
+    self.loading 			= ko.observable(false);
 
     /* register listener to wikiEnabled value
     */
@@ -322,28 +337,40 @@ var MapViewModel = function() {
 
 	var nearbyMarkers = [];	// array with nearby places markers
 
-	var GMAPS_PLACESSERVICE_STATUS_OK = google.maps.places.PlacesServiceStatus.OK; 								//google places service return status: "OK"
-	var GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT = google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT;	//google places service return status: "OVER_QUERY_LIMIT"
+	//google places service return status: "OK"
+	var GMAPS_PLACESSERVICE_STATUS_OK = google.maps.places.PlacesServiceStatus.OK;
+	//google places service return status: "OVER_QUERY_LIMIT"
+	var GMAPS_PLACESSERVICE_STATUS_OVER_QUERY_LIMIT = google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT;
 
 
 	/* 	OBSERVABLES  */
 
-	self.myNeighborhood 		= ko.observable(""); 				// current neighborhood
-	self.neighborhoodLoc		= ko.observable();					// current neighborhood location (@TODO: format)
-	self.nearbyPlaces 			= ko.observableArray([]);			// list of nearby places
-	self.noPlacesToShow			= ko.observable(true);				// boolean, that indicates whether there are or no nearby places to show
-
-	self.keywordSearch			= ko.observable("");				// search keyword
-	self.chosenMarker 			= ko.observable("");				// holds marker , which is currently chosen by user
-
-	self.bikeLayerEnabled 		= ko.observable(false);				// boolean value, indicating whether bike layer is currently enabled or disabled
-	self.trafficLayerEnabled 	= ko.observable(false);				// boolean value, indicating whether traffic layer is currently enabled or disabled
-	self.transitLayerEnabled 	= ko.observable(false);				// boolean value, indicating whether transit layer is currently enabled or disabled
-
-	self.showAddInfoWindow 		= ko.observable(false);				// boolean value, indicating whether addinfo-wrapper is currently shown or hidden
-	self.loading 				= ko.observable(false);				// boolean value, indicating whether content is currently loading or not.
+	// current neighborhood
+	self.myNeighborhood			= ko.observable("");
+	// current neighborhood location (@TODO: format)
+	self.neighborhoodLoc		= ko.observable();
+	// list of nearby places
+	self.nearbyPlaces 			= ko.observableArray([]);
+	// boolean, that indicates whether there are or no nearby places to show
+	self.noPlacesToShow			= ko.observable(true);
+	// search keyword
+	self.keywordSearch			= ko.observable("");
+	// holds marker, which is currently chosen by user
+	self.chosenMarker 			= ko.observable("");
+	self.chosenPlace			= ko.observable("");
+	// boolean value, indicating whether bike layer is currently enabled or disabled
+	self.bikeLayerEnabled 		= ko.observable(false);
+	// boolean value, indicating whether traffic layer is currently enabled or disabled
+	self.trafficLayerEnabled 	= ko.observable(false);
+	// boolean value, indicating whether transit layer is currently enabled or disabled
+	self.transitLayerEnabled 	= ko.observable(false);
+	// boolean value, indicating whether addinfo-wrapper is currently shown or hidden
+	self.showAddInfoWindow 		= ko.observable(false);
+	// boolean value, indicating whether content is currently loading or not.
+	self.loading 				= ko.observable(false);
 	self.errorMsg				= ko.observable("");
-
+	//boolean value, indicating whether internet connection is alive or down based on google object availability
+	self.noInternet				= ko.observable( (typeof google === "undefined") ? true : false ) ;
 
 	/* register notification about myNeighborhood value changes
 	*/
@@ -375,17 +402,44 @@ var MapViewModel = function() {
 	};
 
 
-	/* Triggered when user clicks to the nearby place from the list and
+	/* Select Item Triggered when user clicks to the nearby place from the list and
 	 * pans map center to respective marker
 	*/
-	self.panMapToClickedPlace = function() {
-		for (var i=0; i < nearbyMarkers.length; i++) {
-			if (nearbyMarkers[i].name === this.name) {
-				//pan map to marker
-				map.panTo(nearbyMarkers[i].position);
-				new google.maps.event.trigger( nearbyMarkers[i], 'click' );
+	self.selectItem = function() {
+
+		// different logic depending on what triggered item selection (marker or list)
+		// if marker, then find place
+		var place,
+			marker;
+
+		if (this.hasOwnProperty('map')) {
+			marker = this;
+			for (var i=0; i < self.nearbyPlaces().length; i++) {
+				if (this.name === self.nearbyPlaces()[i].name) {
+					place = self.nearbyPlaces()[i];
+					break;
+				}
+			}
+			console.log(place.id);
+			var d = document.getElementById(place.id);
+			d.scrollIntoViewIfNeeded();
+		} else {
+			place = this;
+			for (var i=0; i < nearbyMarkers.length; i++) {
+				if (nearbyMarkers[i].name === this.name) {
+					marker = nearbyMarkers[i];
+					break;
+				}
 			}
 		}
+
+		self.chosenPlace(place);
+		self.chosenMarker(marker);
+
+		map.panTo(marker.position);
+		//create info window
+		infoWindow.setContent( "<div class='infowindow-div noscroll'><h6>" + marker.name + "</h6><p>" + marker.address + "</p><span>"+ marker.phone +"</span></div>" );
+        infoWindow.open(map, marker);
 	};
 
 	/* horizontal scrolling for places list controlled by arrows  (for mobile users)
@@ -399,7 +453,7 @@ var MapViewModel = function() {
 			scrollLeft :  scrollStep
 		}, 600);
 
-	}
+	};
 
 	initMap();
 
@@ -409,7 +463,7 @@ var MapViewModel = function() {
 	$(window).resize(function () {
 		$('.places-list-wrapper .content')[0].scrollLeft = 0 ;
 
-	})
+	});
 
 	/************************************************************************
 								COMPUTED OBSERVABLES
@@ -441,6 +495,12 @@ var MapViewModel = function() {
   				return true;
   			}
 		}
+	});
+
+	/* Listen to changes in search input and initiate place list filtering
+	*/
+	self.computedKeywordSearch = ko.computed(function() {
+		filterPlaces();
 	});
 
 	// initialize map
@@ -545,7 +605,8 @@ var MapViewModel = function() {
 
 	/* requestNearbyPlaces callback
 		Gets additional details on the returned place , loads respective markers on the map.
-		Due to Google limitation of 10 requests in 1s , places details request was implemented as a recursive 'process_result' function, which is being timedout
+		Due to Google limitation of 10 requests in 1s , places details request was implemented as a recursive 
+		'process_result' function, which is being timedout
 		and relaunched whenever limit reject is received from google .
 	*/
 
@@ -572,6 +633,7 @@ var MapViewModel = function() {
 					if (status === GMAPS_PLACESSERVICE_STATUS_OK)   {
 
 						self.nearbyPlaces.push({
+							id 			: place.id,
 							name		: place.name,
 							icon		: place.icon,
 							address		: place.formatted_address,
@@ -626,8 +688,7 @@ var MapViewModel = function() {
 	/*
 		filter places list according to value entered by user and stored in  keywordSearch observable
 	*/
-	self.filterPlaces = function () {
-
+	function filterPlaces() {
 		var words = self.keywordSearch().split(' ');
 		var list  = self.nearbyPlaces();
 
@@ -679,7 +740,7 @@ var MapViewModel = function() {
 		self.nearbyPlaces(list);
 		//re-load markers on the map (only enabled will be shown)
 		setMarkers(nearbyMarkers);
-	};
+	}
 
 
 	/*
@@ -701,21 +762,15 @@ var MapViewModel = function() {
 		marker.setMap(map);
 
 		//add info window  event on marker
-
-		google.maps.event.addListener(marker, 'click', function() {
-			// get place additional information
-        	infoWindow.setContent( "<div class='infowindow-div noscroll'><h6>" + marker.name + "</h6><p>" + marker.address + "</p><span>"+ marker.phone +"</span></div>" );
-        	infoWindow.open(map, this);
-        	map.panTo(marker.position);
-  			self.chosenMarker(marker);
-      	});
+		google.maps.event.addListener(marker, 'click', self.selectItem);
 
 		// stop marker animation whenever infoWindow is closed
-    	google.maps.event.addListener(infoWindow,'closeclick',function(){
+    	google.maps.event.addListener(infoWindow,'closeclick', function(){
     		if (self.chosenMarker() !== "" && self.chosenMarker().getAnimation() !== null) {
     			self.chosenMarker().setAnimation(null);
     		}
     		self.chosenMarker("");
+    		self.chosenPlace("");
     	});
 
 	}
@@ -739,7 +794,6 @@ var MapViewModel = function() {
 		for (var i = 0; i < nearbyMarkers.length; i++) {
     		nearbyMarkers[i].setMap(null);
   		}
-  		//nearbyMarkers = [];
 	}
 
 

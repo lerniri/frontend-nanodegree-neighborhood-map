@@ -19,6 +19,9 @@ html, body {
 
 }
 
+.disabled {
+	opacity: .3;
+}
 /* Entry */
 
 .entry {
@@ -29,6 +32,17 @@ html, body {
   	background-color: $entry-background-color-fb;
   	background-color: $entry-background-color;
   	z-index: 100;
+
+	.entry-nointernet {
+
+		position: relative;
+		text-align: center;
+		display: block;
+		top: 29%;
+		font-size: 1.5em;
+		color: white;
+	}
+
 
 	.entry-search {
 		position: relative;
@@ -64,8 +78,10 @@ html, body {
 /* Marker Info div */
 .infowindow-div {
 
-	height:80px;
-	padding:2px;
+	background-color: rgba(134, 0, 0, 0.95);
+    color: white;
+    height: 80px;
+    padding: 7px;
 
 	h6 {
 		margin-bottom: 20px;
@@ -108,10 +124,7 @@ html, body {
 		i {
 			cursor: pointer;
 		}
-
-
 	}
-
 
 
 	.layers {
@@ -146,8 +159,6 @@ html, body {
 	right:5px;
 	min-width:350px;
 	height:90%;
-
-
 
 	/* scrollbar Chrome */
 
@@ -238,6 +249,12 @@ html, body {
   			color: #FF0000;
   		}
 
+		.item-selected {
+			-webkit-box-shadow: inset 0px 0px 20px -3px rgba(134, 0, 0, 1);
+			-moz-box-shadow: inset 0px 0px 20px -3px rgba(134, 0, 0, 1);
+			box-shadow: inset 0px 0px 20px -3px rgba(134, 0, 0, 1);
+		}
+
   		.place-item {
 
   			background-color: $placelist-item-background-color;
@@ -262,6 +279,9 @@ html, body {
 				font-weight: bold;
 				text-align: right;
 			}
+
+
+
 
 			.place-reviews {
 

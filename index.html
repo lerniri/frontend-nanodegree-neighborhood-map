@@ -8,22 +8,22 @@
 
 	<!-- Animations -->
 	<!-- PROD -->
-	<link rel="stylesheet" type="text/css" href="_build/css/animation.min.css">
+	<!-- <link rel="stylesheet" type="text/css" href="_build/css/animation.min.css"> -->
 	<!-- DEV -->
-	<!-- link rel="stylesheet" type="text/css" href="css/animation.css" -->
+	<link rel="stylesheet" type="text/css" href="css/animation.css" >
 
 	<!-- Fonts style -->
 	<!-- PROD -->
-	<link rel="stylesheet" type="text/css" href="_build/css/fontello.min.css">
+	<!-- <link rel="stylesheet" type="text/css" href="_build/css/fontello.min.css"> -->
 	<!-- DEV -->
-	<!-- link rel="stylesheet" type="text/css" href="css/fontello.css" -->
+	<link rel="stylesheet" type="text/css" href="css/fontello.css">
 
 	<!-- Main Styles -->
 	<!-- PROD -->
-	<link rel="stylesheet" type="text/css" href="_build/css/main.min.css">
+	<!-- <link rel="stylesheet" type="text/css" href="_build/css/main.min.css"> -->
 
 	<!-- DEV -->
-	<!-- link rel="stylesheet" type="text/css" href="css/main.css"-->
+	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<!-- Main Styles End -->
 
 
@@ -40,9 +40,14 @@
 	<div class="wrapper">
 		<div data-bind="with: MapViewModel">
 			<!-- entry screen allowing user to enter neighborhood to discover -->
-			<div class="entry" data-bind="visible: myNeighborhood() == ''">
-				<div class="entry-search">
-					<input data-bind="value: myNeighborhood" />
+			<div class="entry" data-bind="visible: myNeighborhood() === ''">
+				<div class="entry-nointernet" data-bind="visible: noInternet">
+					<img src="img/error.png" />
+					<p>Oops! Looks like you internet connection is down</p>
+					<p>Check and refresh the page</p>
+				</div>
+				<div class="entry-search" data-bind="css : {'disabled' : noInternet }">
+					<input data-bind="value: myNeighborhood"/>
 					<h1>Discover Your Neighborhood</h1>
 				</div>
 			</div>
@@ -54,7 +59,6 @@
 				<div class="searches">
 					<input id="neighborhood-search" class="neighborhood-search" data-bind="value: myNeighborhood" type="search" placeholder="Type Neighborhood">
 					<input class="places-search" type="search" data-bind="value:keywordSearch" placeholder="Type to filter places">
-					<i class="icon-search" data-bind="click: filterPlaces"></i>
 				</div>
 				<div class="layers">
 					<ul>
@@ -83,7 +87,9 @@
 					<ul data-bind="foreach: nearbyPlaces">
 
 						<!-- ko if: showItem -->
-						<li class="place-item" data-bind="click: $parent.panMapToClickedPlace">
+						<li class="place-item" data-bind="click: $parent.selectItem,
+															css: {'item-selected': $data === $parent.chosenPlace()},
+															attr: {id: id}">
 
 							<img class="place-item-logo" data-bind="attr: {src: icon}">
 
@@ -110,7 +116,6 @@
 						</li>
 						<!-- /ko -->
 					</ul>
-
 					<span class="places-next nav-arrows" data-bind="click: scrollPlacesList(1)"><img src="_build/img/next.png"></span>
 					<span class="search-result" data-bind="visible: noPlacesToShow || nearbyPlaces().length <= 0">Sorry, nothing found.</span>
 					<span class="error-msg" data-bind="visible: errorMsg() !== '', text: errorMsg"></span>
@@ -182,14 +187,14 @@
 
 	<!-- Knockout CDN -->
 	<!-- PROD -->
-	<script src="_build/js/libs/knockout-3.2.0.min.js"></script>
+	<!-- script src="_build/js/libs/knockout-3.2.0.min.js"></script-->
 	<!-- DEV -->
-	<!-- script src="js/libs/knockout-3.2.0.js"></script -->
+	<script src="js/libs/knockout-3.2.0.js"></script>
 
 	<!-- Application code -->
 	<!-- PROD -->
-	<script src="_build/js/app.min.js"></script>
+	<!-- script src="_build/js/app.min.js"></script -->
 	<!-- DEV -->
-	<!-- script type="text/javascript" src="js/app.js"></script-->
+	<script type="text/javascript" src="js/app.js"></script>
   </body>
 </html>

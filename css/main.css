@@ -161,6 +161,10 @@ html, body {
   height: 100vh;
 }
 
+.disabled {
+  opacity: .3;
+}
+
 /* Entry */
 .entry {
   position: absolute;
@@ -169,6 +173,14 @@ html, body {
   background-color: #860000;
   background-color: rgba(134, 0, 0, 0.95);
   z-index: 100;
+}
+.entry .entry-nointernet {
+  position: relative;
+  text-align: center;
+  display: block;
+  top: 29%;
+  font-size: 1.5em;
+  color: white;
 }
 .entry .entry-search {
   position: relative;
@@ -199,8 +211,10 @@ html, body {
 
 /* Marker Info div */
 .infowindow-div {
+  background-color: rgba(134, 0, 0, 0.95);
+  color: white;
   height: 80px;
-  padding: 2px;
+  padding: 7px;
 }
 .infowindow-div h6 {
   margin-bottom: 20px;
@@ -355,6 +369,9 @@ html, body {
   padding: 40px;
   box-sizing: border-box;
   color: #FF0000;
+}
+.places-list-wrapper .content .item-selected {
+  box-shadow: inset 0px 0px 20px -3px #860000;
 }
 .places-list-wrapper .content .place-item {
   background-color: rgba(255, 255, 255, 0.89);
